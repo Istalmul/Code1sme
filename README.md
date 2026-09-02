@@ -22,6 +22,10 @@ npm run typecheck
 npm run build
 ```
 
+`next-env.d.ts` is committed in the form `next build` writes. Running
+`next dev` rewrites its two imports to point at `.next/dev/types/` instead;
+that local change is expected and can be discarded.
+
 ## What is real and what is sample
 
 The authentication system is real: accounts, hashing, verification codes, rate
