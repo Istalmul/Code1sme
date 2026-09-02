@@ -4,21 +4,25 @@
  * user has not completed.
  */
 export function StepMeter({ step, total, label }: { step: number; total: number; label: string }) {
+  // `step` counts finished steps, which is what fills the bar. The caption
+  // names the step being worked on, so the two never disagree.
+  const current = Math.min(step + 1, total);
+
   return (
     <div className="mb-7">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-[13px] font-medium text-muted">{label}</span>
         <span className="text-[13px] tabular-nums text-subtle">
-          Step {step} of {total}
+          Step {current} of {total}
         </span>
       </div>
       <div
         className="flex gap-1.5"
         role="progressbar"
-        aria-valuenow={step}
+        aria-valuenow={current}
         aria-valuemin={1}
         aria-valuemax={total}
-        aria-label={`${label}: step ${step} of ${total}`}
+        aria-label={`${label}: step ${current} of ${total}`}
       >
         {Array.from({ length: total }, (_, i) => (
           <span

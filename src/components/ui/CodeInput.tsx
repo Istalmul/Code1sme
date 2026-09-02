@@ -95,7 +95,7 @@ export function CodeInput({ value, onChange, onComplete, error, disabled, label 
         ))}
       </div>
       {error && (
-        <p id={errorId} role="alert" className="mt-2.5 text-[13px] text-bad-600">
+        <p id={errorId} role="alert" className="mt-2.5 text-[13px] text-on-bad">
           {error}
         </p>
       )}

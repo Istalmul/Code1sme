@@ -154,7 +154,7 @@ export function SignupForm({ googleReady }: { googleReady: boolean }) {
 
       <p className="mt-6 text-center text-[14px] text-muted">
         Already have an account?{" "}
-        <Link href="/login" className="rounded font-medium text-brand-600 hover:underline">
+        <Link href="/login" className="rounded font-medium text-link hover:underline">
           Sign in
         </Link>
       </p>

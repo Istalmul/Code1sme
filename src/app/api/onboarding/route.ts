@@ -1,0 +1,58 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { fromZod, fail } from "@/lib/auth/respond";
+import {
+  SESSION_COOKIE,
+  currentSession,
+  sessionCookieOptions,
+  signSession,
+} from "@/lib/auth/session";
+import { transaction } from "@/lib/auth/store";
+
+const workspaceSchema = z.object({
+  companyName: z.string().trim().min(1, "Enter your company name").max(120),
+  website: z.string().trim().max(200).optional(),
+  offering: z.string().trim().min(3, "Tell us what you sell").max(280),
+  industry: z.string().trim().min(1, "Choose your industry"),
+  targetMarkets: z.array(z.string()).min(1, "Choose at least one market"),
+  companySizes: z.array(z.string()).min(1, "Choose at least one company size"),
+  aiEmployee: z.object({
+    name: z.string().trim().min(1, "Give your AI employee a name").max(40),
+    role: z.string().min(1),
+    tone: z.string().min(1),
+    avatarSeed: z.string().min(1),
+  }),
+});
+
+export async function POST(request: Request) {
+  const session = await currentSession();
+  if (!session) return fail(401, "Sign in to continue.");
+
+  const parsed = workspaceSchema.safeParse(await request.json().catch(() => ({})));
+  if (!parsed.success) return fromZod(parsed.error);
+
+  const user = await transaction((db) => {
+    const found = db.users.find((u) => u.id === session.sub);
+    if (!found) return null;
+    found.workspace = parsed.data;
+    found.onboardingCompletedAt ??= new Date().toISOString();
+    return found;
+  });
+
+  if (!user) return fail(401, "Sign in to continue.");
+
+  const response = NextResponse.json({ ok: true });
+  // The session carries `onboarded`, so it has to be reissued here or the
+  // middleware would send the user straight back to onboarding.
+  response.cookies.set(
+    SESSION_COOKIE,
+    await signSession({
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      onboarded: true,
+    }),
+    sessionCookieOptions(),
+  );
+  return response;
+}

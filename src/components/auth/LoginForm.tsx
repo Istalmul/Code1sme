@@ -143,7 +143,7 @@ export function LoginForm({
           labelAction={
             <Link
               href="/forgot-password"
-              className="rounded text-[13px] font-medium text-brand-600 hover:underline"
+              className="rounded text-[13px] font-medium text-link hover:underline"
             >
               Forgot password?
             </Link>
@@ -157,7 +157,7 @@ export function LoginForm({
 
       <p className="mt-6 text-center text-[14px] text-muted">
         New to Piasowo?{" "}
-        <Link href="/signup" className="rounded font-medium text-brand-600 hover:underline">
+        <Link href="/signup" className="rounded font-medium text-link hover:underline">
           Create an account
         </Link>
       </p>

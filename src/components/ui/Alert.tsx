@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 type Tone = "error" | "success" | "info";
 
 const styles: Record<Tone, { box: string; icon: typeof Info }> = {
-  error: { box: "border-bad-600/30 bg-bad-100 text-bad-700", icon: AlertCircle },
-  success: { box: "border-good-600/30 bg-good-100 text-good-700", icon: CheckCircle2 },
+  error: { box: "border-on-bad/30 bg-tint-bad text-on-bad", icon: AlertCircle },
+  success: { box: "border-on-good/30 bg-tint-good text-on-good", icon: CheckCircle2 },
   info: { box: "border-line-strong bg-sunken text-body", icon: Info },
 };
 

@@ -125,7 +125,7 @@ export function VerifyStep({ challengeId, email, onVerified, onBack, backLabel }
           // A countdown rather than a dead button, so the wait is explained.
           <span className="text-subtle">resend in {seconds}s</span>
         ) : (
-          <button type="button" onClick={resend} className="rounded font-medium text-brand-600 hover:underline">
+          <button type="button" onClick={resend} className="rounded font-medium text-link hover:underline">
             send a new code
           </button>
         )}

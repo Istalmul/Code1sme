@@ -61,6 +61,20 @@
   --color-body: var(--text);
   --color-muted: var(--text-muted);
   --color-subtle: var(--text-subtle);
+  --color-link: var(--link);
+
+  /* Status tints and their foreground, as a pair. A component uses
+     `bg-tint-warn text-on-warn` and stays legible in either theme. */
+  --color-tint-good: var(--tint-good);
+  --color-on-good: var(--on-good);
+  --color-tint-warn: var(--tint-warn);
+  --color-on-warn: var(--on-warn);
+  --color-tint-bad: var(--tint-bad);
+  --color-on-bad: var(--on-bad);
+  --color-tint-brand: var(--tint-brand);
+  --color-on-brand: var(--on-brand);
+  --color-tint-live: var(--tint-live);
+  --color-on-live: var(--on-live);
 }
 
 /* Semantic surface variables, themed. Components reference only these. */
@@ -73,10 +87,21 @@
   --border-strong: var(--color-ink-300);
   --text: var(--color-ink-900);
   --text-muted: var(--color-ink-600);
-  --text-subtle: var(--color-ink-500);
+  --text-subtle: #636c7b;
   --focus: var(--color-brand-500);
   --shadow-card: 0 1px 2px rgb(16 24 40 / 0.05);
   --shadow-pop: 0 8px 24px -8px rgb(16 24 40 / 0.16), 0 2px 6px rgb(16 24 40 / 0.06);
+  --link: #2450d6;
+  --tint-good: #d8f0e4;
+  --on-good: #0f6b45;
+  --tint-warn: #fbeecd;
+  --on-warn: #7a4900;
+  --tint-bad: #fbe0de;
+  --on-bad: #a3251f;
+  --tint-brand: #e3eafd;
+  --on-brand: #1c3fb0;
+  --tint-live: #ebe4fa;
+  --on-live: #5b3aa8;
   color-scheme: light;
 }
 
@@ -93,6 +118,17 @@
     --text-subtle: #8f99a8;
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
     --shadow-pop: 0 8px 24px -8px rgb(0 0 0 / 0.6), 0 2px 6px rgb(0 0 0 / 0.3);
+    --link: #9db8ff;
+    --tint-good: #0e2a20;
+    --on-good: #6fdcac;
+    --tint-warn: #322309;
+    --on-warn: #f0c04d;
+    --tint-bad: #3a1512;
+    --on-bad: #f4a3a0;
+    --tint-brand: #16234a;
+    --on-brand: #9db8ff;
+    --tint-live: #241c3e;
+    --on-live: #c0adfa;
     color-scheme: dark;
   }
 }
@@ -109,6 +145,17 @@
   --text-subtle: #8f99a8;
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
   --shadow-pop: 0 8px 24px -8px rgb(0 0 0 / 0.6), 0 2px 6px rgb(0 0 0 / 0.3);
+  --link: #9db8ff;
+  --tint-good: #0e2a20;
+  --on-good: #6fdcac;
+  --tint-warn: #322309;
+  --on-warn: #f0c04d;
+  --tint-bad: #3a1512;
+  --on-bad: #f4a3a0;
+  --tint-brand: #16234a;
+  --on-brand: #9db8ff;
+  --tint-live: #241c3e;
+  --on-live: #c0adfa;
   color-scheme: dark;
 }
 

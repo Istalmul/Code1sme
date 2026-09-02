@@ -59,7 +59,7 @@ export function Field({
       {/* Errors replace the hint rather than stacking, so the field never jumps
           by more than one line. */}
       {error ? (
-        <p id={errorId} role="alert" className="mt-1.5 text-[13px] text-bad-600">
+        <p id={errorId} role="alert" className="mt-1.5 text-[13px] text-on-bad">
           {error}
         </p>
       ) : hint ? (
