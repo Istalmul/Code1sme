@@ -5,6 +5,16 @@ opportunity signals, conduct AI-powered research, and execute growth missions.
 
 ## Running it
 
+### In the browser, with no local setup
+
+On GitHub: **Code → Codespaces → Create codespace on this branch**. Dependencies
+install automatically; then run `npm run dev` in the terminal and the app opens
+on port 3000.
+
+### Locally
+
+Requires Node 20.9 or newer.
+
 ```bash
 npm install
 cp .env.example .env.local   # then fill in AUTH_SECRET
