@@ -24,12 +24,43 @@ export type User = {
   createdAt: string;
   /** Set once the user finishes onboarding; drives the post-login redirect. */
   onboardingCompletedAt?: string;
+  /**
+   * A person may run several businesses — an agency with clients, a founder
+   * with a side venture. Each gets its own AI employee, criteria and pipeline;
+   * nothing leaks between them.
+   */
+  workspaces: Workspace[];
+  activeWorkspaceId?: string;
+  /** Legacy single-workspace field, migrated on read. Never written. */
   workspace?: Workspace;
   appearance?: Appearance;
   profile?: ProfileDetails;
+  connections?: Connections;
+};
+
+/** Where outreach would actually leave from, and whether it is safe to. */
+export type Connections = {
+  email?: SenderAccount;
+  whatsapp?: SenderAccount;
+};
+
+export type SenderAccount = {
+  address: string;
+  connectedAt: string;
+  /**
+   * Domain reputation is earned over weeks of low, steady volume. Sending at
+   * full rate from a cold domain is what gets it filtered, so the warm-up day
+   * count gates the cap the AI employee is allowed to use.
+   */
+  warmupStartedAt: string;
 };
 
 export type Workspace = {
+  id: string;
+  /** Hidden from the switcher without losing its history. */
+  archived?: boolean;
+  /** A colour dot in the switcher, so several businesses stay scannable. */
+  color?: Appearance["accent"];
   companyName: string;
   website?: string;
   /** What the business sells, in the user's words. */
@@ -45,6 +76,25 @@ export type Workspace = {
   documents?: WorkspaceDocument[];
   /** Hard rules the AI applies before an opportunity ever reaches the user. */
   criteria?: { minScore: number; dealBreakers: string };
+  /** People found through a real data provider, before they are scored. */
+  sourced?: SourcedProspect[];
+};
+
+export type SourcedProspect = {
+  id: string;
+  externalId?: string;
+  name: string;
+  title: string;
+  company: string;
+  domain?: string;
+  location?: string;
+  employees?: string;
+  linkedin?: string;
+  email?: string;
+  phone?: string;
+  /** Whether a credit has been spent to reveal contact details. */
+  enriched: boolean;
+  foundAt: string;
 };
 
 export type WorkspaceDocument = {
@@ -129,10 +179,45 @@ let queue: Promise<unknown> = Promise.resolve();
 async function read(): Promise<Db> {
   try {
     const raw = await fs.readFile(DB_FILE, "utf8");
-    return { ...EMPTY, ...(JSON.parse(raw) as Partial<Db>) };
+    const db = { ...EMPTY, ...(JSON.parse(raw) as Partial<Db>) };
+    db.users.forEach(migrateUser);
+    return db;
   } catch {
     return structuredClone(EMPTY);
   }
+}
+
+/**
+ * Brings a stored user up to the current shape.
+ *
+ * Accounts created before multi-workspace support hold a single `workspace`;
+ * they are folded into the list on read so nothing downstream has to know two
+ * shapes existed.
+ */
+function migrateUser(user: User): void {
+  user.workspaces ??= [];
+  if (user.workspace) {
+    const legacy = user.workspace;
+    if (!user.workspaces.some((w) => w.id === "ws-1")) {
+      user.workspaces.unshift({ ...legacy, id: legacy.id ?? "ws-1" });
+    }
+    delete user.workspace;
+  }
+  user.workspaces.forEach((w, index) => {
+    w.id ||= `ws-${index + 1}`;
+  });
+  const active = user.workspaces.find((w) => w.id === user.activeWorkspaceId && !w.archived);
+  if (!active) {
+    user.activeWorkspaceId = user.workspaces.find((w) => !w.archived)?.id;
+  }
+}
+
+/** The workspace a request should act on, or undefined before onboarding. */
+export function activeWorkspace(user: User): Workspace | undefined {
+  return (
+    user.workspaces.find((w) => w.id === user.activeWorkspaceId) ??
+    user.workspaces.find((w) => !w.archived)
+  );
 }
 
 async function write(db: Db): Promise<void> {

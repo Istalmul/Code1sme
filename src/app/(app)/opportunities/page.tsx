@@ -4,6 +4,8 @@ import { Radar } from "lucide-react";
 import { requireWorkspace } from "@/lib/piasowo/session-data";
 import { OpportunityCard } from "@/components/piasowo/OpportunityCard";
 import { EmptyState } from "@/components/piasowo/EmptyState";
+import { SourcedPanel } from "@/components/piasowo/SourcedPanel";
+import { apolloConfigured } from "@/lib/sourcing/apollo";
 import { ButtonLink } from "@/components/ui/Button";
 import type { OpportunityStatus } from "@/lib/piasowo/types";
 
@@ -24,16 +26,21 @@ const FILTERS: Filter[] = [
   { key: "all", label: "All", statuses: null },
 ];
 
+/** Sourced prospects aren't opportunities yet, so they get their own view. */
+const SOURCED = "sourced";
+
 export default async function OpportunitiesPage({
   searchParams,
 }: {
   searchParams: Promise<{ filter?: string }>;
 }) {
   const { filter = "waiting" } = await searchParams;
-  const { data } = await requireWorkspace();
+  const { workspace, data } = await requireWorkspace();
   const employee = data.employees[0];
   const mission = data.missions[0];
+  const sourced = workspace.sourced ?? [];
 
+  const showingSourced = filter === SOURCED;
   const active = FILTERS.find((f) => f.key === filter) ?? FILTERS[0];
   const visible = data.opportunities
     .filter((o) => !active.statuses || active.statuses.includes(o.status))
@@ -51,7 +58,25 @@ export default async function OpportunitiesPage({
       {/* A short row of filters, not a filter panel. Anything more would be
           configuration the user has to think about before reading anything. */}
       <nav aria-label="Filter opportunities" className="mb-5 flex flex-wrap gap-2">
-        {FILTERS.map((option) => {
+        {[...FILTERS, { key: SOURCED, label: "Sourced", statuses: [] as never[] }].map((option) => {
+          if (option.key === SOURCED) {
+            const isActive = showingSourced;
+            return (
+              <Link
+                key={option.key}
+                href={`/opportunities?filter=${SOURCED}`}
+                aria-current={isActive ? "page" : undefined}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+                  isActive
+                    ? "border-brand-600 bg-tint-brand text-on-brand"
+                    : "border-line-strong bg-surface text-muted hover:bg-hover hover:text-body"
+                }`}
+              >
+                {option.label}
+                <span className="tabular-nums opacity-70">{sourced.length}</span>
+              </Link>
+            );
+          }
           const count = data.opportunities.filter(
             (o) => !option.statuses || option.statuses.includes(o.status),
           ).length;
@@ -74,7 +99,14 @@ export default async function OpportunitiesPage({
         })}
       </nav>
 
-      {visible.length > 0 ? (
+      {showingSourced ? (
+        <SourcedPanel
+          prospects={sourced}
+          apolloReady={apolloConfigured()}
+          employeeName={employee.name}
+          markets={workspace.targetMarkets}
+        />
+      ) : visible.length > 0 ? (
         <div className="space-y-3">
           {visible.map((opportunity, index) => (
             <OpportunityCard

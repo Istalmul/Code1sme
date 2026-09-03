@@ -23,7 +23,24 @@ export type Prospect = {
   industry: string;
   employees: string;
   location: string;
-  contact: { name: string; title: string };
+  /** Where this company was found, named so the user can judge the source. */
+  foundVia: string;
+  contact: Contact;
+};
+
+export type Contact = {
+  name: string;
+  title: string;
+  email?: string;
+  phone?: string;
+  whatsapp?: string;
+  linkedin?: string;
+  /**
+   * Whether the address was checked before it reached a draft. Bounces damage
+   * sender reputation, so an unverified contact is worth flagging rather than
+   * quietly sending to.
+   */
+  verification: "verified" | "risky" | "unverified";
 };
 
 /** One line of the score, so a number is never shown without its reasoning. */

@@ -15,6 +15,9 @@ export const LIMITS = {
   "code:ip": { limit: 30, windowMs: 15 * 60 * 1000 },
   "resend:email": { limit: 5, windowMs: 60 * 60 * 1000 },
   "reset:email": { limit: 5, windowMs: 60 * 60 * 1000 },
+  // Model calls cost real money, so the budget is per-IP and deliberately low.
+  "ai:ip": { limit: 30, windowMs: 60 * 60 * 1000 },
+  "sourcing:ip": { limit: 12, windowMs: 60 * 60 * 1000 },
 } satisfies Record<string, Limit>;
 
 export type LimitKey = keyof typeof LIMITS;

@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, FileText, Quote } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { requireWorkspace } from "@/lib/piasowo/session-data";
 import { relativeTime } from "@/lib/piasowo/format";
 import { ScoreBadge } from "@/components/piasowo/ScoreBadge";
 import { SignalBadge } from "@/components/piasowo/SignalBadge";
 import { ScoreBreakdown } from "@/components/piasowo/ScoreBreakdown";
 import { DecisionPanel } from "@/components/piasowo/DecisionPanel";
-import { EmployeeAvatar } from "@/components/piasowo/EmployeeStatus";
+import { ContactCard } from "@/components/piasowo/ContactCard";
+import { AiDraftPanel } from "@/components/piasowo/AiDraftPanel";
 
 export const metadata: Metadata = { title: "Opportunity" };
 
@@ -112,85 +113,17 @@ export default async function OpportunityPage({
             </div>
           </section>
 
-          {/* 3. The draft, with what it was written from */}
-          {opportunity.draft && (
-            <section className="rounded-xl border border-line bg-surface shadow-card">
-              <div className="flex items-start gap-3 border-b border-line px-5 py-4">
-                <EmployeeAvatar name={employee.name} size={32} />
-                <div className="min-w-0">
-                  <h2 className="text-[15px] font-semibold tracking-tight">
-                    {employee.name} drafted this {opportunity.draft.channel === "email" ? "email" : "message"}
-                  </h2>
-                  <p className="mt-0.5 text-[13px] text-muted">
-                    To {prospect.contact.name}, {prospect.contact.title} · {employee.tone} tone
-                  </p>
-                </div>
-              </div>
-
-              <div className="px-5 py-4">
-                {opportunity.draft.subject && (
-                  <p className="mb-3 text-[14px]">
-                    <span className="text-muted">Subject: </span>
-                    <span className="font-medium text-body">{opportunity.draft.subject}</span>
-                  </p>
-                )}
-                <p className="whitespace-pre-line text-[14px] leading-relaxed text-body">
-                  {opportunity.draft.body}
-                </p>
-              </div>
-
-              {/* Grounding is shown by default, not behind a disclosure — it is
-                  the reason to trust the draft enough to approve it. */}
-              <div className="border-t border-line bg-sunken px-5 py-4">
-                <p className="flex items-center gap-1.5 text-[13px] font-medium text-body">
-                  <Quote className="size-3.5 text-subtle" aria-hidden="true" />
-                  Written from
-                </p>
-                <ul className="mt-2 space-y-1">
-                  {opportunity.draft.grounding.map((source) => (
-                    <li key={source} className="text-[13px] leading-relaxed text-muted">
-                      {source}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Proof points are cited separately from the prospect's own
-                    signals, so it stays clear which half came from you. */}
-                {workspace.documents && workspace.documents.length > 0 ? (
-                  <p className="mt-3 border-t border-line pt-3 text-[13px] leading-relaxed text-muted">
-                    <span className="font-medium text-body">One proof point of yours: </span>
-                    {workspace.documents[0].text.split("\n")[0].slice(0, 140)}
-                  </p>
-                ) : (
-                  <p className="mt-3 border-t border-line pt-3 text-[13px] leading-relaxed text-muted">
-                    This draft says why {prospect.company} matters, but nothing about why you&apos;re
-                    worth a reply.{" "}
-                    <Link
-                      href="/settings/workspace"
-                      className="rounded font-medium text-link hover:underline"
-                    >
-                      Add a proof point
-                    </Link>{" "}
-                    and {employee.name} will work one in.
-                  </p>
-                )}
-              </div>
-            </section>
-          )}
-
-          {!opportunity.draft && (
-            <section className="rounded-xl border border-line bg-surface p-5 shadow-card">
-              <p className="flex items-center gap-1.5 text-[15px] font-semibold tracking-tight">
-                <FileText className="size-4 text-subtle" aria-hidden="true" />
-                No draft yet
-              </p>
-              <p className="mt-2 text-[14px] leading-relaxed text-muted">
-                {employee.name} hasn&apos;t written to {prospect.company} yet — the signal is real
-                but the reason behind it isn&apos;t clear enough to open with. Approving the
-                research below tells {employee.name} to dig further before drafting.
-              </p>
-            </section>
-          )}
+          {/* Research and the draft written from it, on demand. */}
+          <AiDraftPanel
+            opportunity={opportunity}
+            employeeName={employee.name}
+            destination={
+              prospect.contact.email
+                ? `To ${prospect.contact.name} at ${prospect.contact.email}`
+                : `To ${prospect.contact.name} on ${prospect.contact.linkedin ?? "LinkedIn"}`
+            }
+            hasProofPoints={Boolean(workspace.documents?.length)}
+          />
         </div>
 
         <div className="space-y-6 lg:col-start-2 lg:row-start-2">
@@ -211,11 +144,7 @@ export default async function OpportunityPage({
             </div>
           </section>
 
-          <section className="rounded-xl border border-line bg-surface p-5 shadow-card">
-            <h2 className="text-[15px] font-semibold tracking-tight">Contact</h2>
-            <p className="mt-2 text-[14px] font-medium text-body">{prospect.contact.name}</p>
-            <p className="text-[13px] text-muted">{prospect.contact.title}</p>
-          </section>
+          <ContactCard prospect={prospect} />
         </div>
       </div>
     </div>

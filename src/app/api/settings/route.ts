@@ -8,7 +8,7 @@ import {
   sessionCookieOptions,
   signSession,
 } from "@/lib/auth/session";
-import { transaction } from "@/lib/auth/store";
+import { activeWorkspace, transaction } from "@/lib/auth/store";
 import { DEFAULT_APPEARANCE, DEFAULT_CRITERIA, DEFAULT_PROFILE } from "@/lib/settings/defaults";
 
 /** Roughly 1.4MB of base64, which comfortably holds a 256px avatar. */
@@ -93,6 +93,13 @@ const bodySchema = z.object({
    * employee screen, where it reads as "how much work reaches me".
    */
   workspaceCriteriaMinScore: z.number().int().min(0).max(100).optional(),
+  connect: z
+    .object({
+      channel: z.enum(["email", "whatsapp"]),
+      address: z.string().trim().min(3, "Enter the address to send from").max(120),
+    })
+    .optional(),
+  disconnect: z.enum(["email", "whatsapp"]).optional(),
 });
 
 /**
@@ -127,20 +134,22 @@ export async function PATCH(request: Request) {
       user.profile = { ...DEFAULT_PROFILE, ...user.profile, ...details };
     }
 
-    if (user.workspace) {
+    // Workspace edits always target the active one, never "the workspace".
+    const workspace = activeWorkspace(user);
+    if (workspace) {
       if (patch.employee) {
-        user.workspace.aiEmployee = {
-          ...user.workspace.aiEmployee,
+        workspace.aiEmployee = {
+          ...workspace.aiEmployee,
           ...patch.employee,
           avatarSeed: patch.employee.name.toLowerCase(),
         };
       }
       if (patch.workspace) {
-        user.workspace = { ...user.workspace, ...patch.workspace };
+        Object.assign(workspace, patch.workspace);
       }
       if (patch.addDocument) {
-        user.workspace.documents = [
-          ...(user.workspace.documents ?? []),
+        workspace.documents = [
+          ...(workspace.documents ?? []),
           {
             id: crypto.randomUUID(),
             name: patch.addDocument.name,
@@ -150,14 +159,32 @@ export async function PATCH(request: Request) {
         ];
       }
       if (patch.removeDocumentId) {
-        user.workspace.documents = (user.workspace.documents ?? []).filter(
+        workspace.documents = (workspace.documents ?? []).filter(
           (d) => d.id !== patch.removeDocumentId,
         );
       }
-      user.workspace.criteria ??= DEFAULT_CRITERIA;
+      workspace.criteria ??= DEFAULT_CRITERIA;
       if (patch.workspaceCriteriaMinScore !== undefined) {
-        user.workspace.criteria.minScore = patch.workspaceCriteriaMinScore;
+        workspace.criteria.minScore = patch.workspaceCriteriaMinScore;
       }
+    }
+
+    if (patch.connect) {
+      const now = new Date().toISOString();
+      user.connections = {
+        ...user.connections,
+        [patch.connect.channel]: {
+          address: patch.connect.address,
+          connectedAt: now,
+          // Warm-up starts the moment an account is connected; reconnecting
+          // the same address should not reset the clock in a real system.
+          warmupStartedAt: user.connections?.[patch.connect.channel]?.warmupStartedAt ?? now,
+        },
+      };
+    }
+
+    if (patch.disconnect && user.connections) {
+      delete user.connections[patch.disconnect];
     }
 
     user.appearance ??= DEFAULT_APPEARANCE;

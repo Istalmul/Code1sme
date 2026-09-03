@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bot, Building2, LogOut, Palette, UserRound } from "lucide-react";
+import { Bot, Building2, LayoutGrid, LogOut, Palette, UserRound } from "lucide-react";
 import { requireWorkspace } from "@/lib/piasowo/session-data";
 import { SettingsList, SettingsRow } from "@/components/settings/SettingsRow";
 import { DEFAULT_APPEARANCE } from "@/lib/settings/defaults";
@@ -9,7 +9,8 @@ export const metadata: Metadata = { title: "Settings" };
 const THEME_LABEL = { system: "System", light: "Light", dark: "Dark" } as const;
 
 export default async function SettingsPage() {
-  const { user, workspace } = await requireWorkspace();
+  const { user, workspace, workspaces } = await requireWorkspace();
+  const live = workspaces.filter((w) => !w.archived);
   const appearance = user.appearance ?? DEFAULT_APPEARANCE;
   const employee = workspace.aiEmployee;
 
@@ -51,6 +52,19 @@ export default async function SettingsPage() {
             workspace.documents?.length ?? 0
           } documents`}
           value={workspace.companyName}
+        />
+        <SettingsRow
+          href="/settings/workspaces"
+          icon={<LayoutGrid className="size-[18px]" aria-hidden="true" />}
+          label="Businesses"
+          description={
+            live.length === 1
+              ? "Add another to run a separate pipeline"
+              : `${live.length} active${
+                  workspaces.length > live.length ? `, ${workspaces.length - live.length} archived` : ""
+                }`
+          }
+          value={live.length === 1 ? "1" : String(live.length)}
         />
         <SettingsRow
           href="/settings/appearance"

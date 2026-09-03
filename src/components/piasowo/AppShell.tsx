@@ -7,6 +7,7 @@ import { PanelLeftClose, PanelLeftOpen, Settings } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { MobileNav, SidebarNav } from "./AppNav";
 import { UserMenu } from "./UserMenu";
+import { WorkspaceSwitcher, type SwitcherWorkspace } from "./WorkspaceSwitcher";
 
 const STORAGE_KEY = "piasowo:sidebar-collapsed";
 
@@ -17,10 +18,14 @@ const STORAGE_KEY = "piasowo:sidebar-collapsed";
  */
 export function AppShell({
   user,
+  workspaces,
+  activeWorkspaceId,
   pendingCount,
   children,
 }: {
   user: { name: string; email: string; avatarUrl?: string };
+  workspaces: SwitcherWorkspace[];
+  activeWorkspaceId: string;
   pendingCount: number;
   children: ReactNode;
 }) {
@@ -77,6 +82,16 @@ export function AppShell({
               <PanelLeftClose className="size-[18px]" aria-hidden="true" />
             )}
           </button>
+        </div>
+
+        {/* The switcher sits above navigation because which business you are
+            in changes what every item below it means. */}
+        <div className={`mb-2 ${collapsed ? "" : "border-b border-line pb-2"}`}>
+          <WorkspaceSwitcher
+            workspaces={workspaces}
+            activeId={activeWorkspaceId}
+            collapsed={collapsed}
+          />
         </div>
 
         <div className="flex-1">

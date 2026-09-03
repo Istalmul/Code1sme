@@ -6,11 +6,13 @@ import { ProfileForm } from "@/components/settings/ProfileForm";
 export const metadata: Metadata = { title: "Profile" };
 
 export default async function ProfileSettingsPage() {
-  const { user } = await requireWorkspace();
+  const { user, workspace } = await requireWorkspace();
   return (
     <ProfileForm
       email={user.email}
       providers={user.providers}
+      connections={user.connections ?? {}}
+      dailyCap={workspace.aiEmployee.dailyCap}
       initial={{
         name: user.name,
         avatarUrl: user.avatarUrl ?? "",

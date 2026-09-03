@@ -80,3 +80,6 @@ export const COUNTRIES = [
   "United States", "Canada", "Germany", "France", "Netherlands", "Spain",
   "Portugal", "United Arab Emirates", "Singapore", "Australia", "New Zealand",
 ] as const;
+
+/** Suggested names for a new business's AI employee. */
+export const EMPLOYEE_NAME_POOL = ["Ada", "Nova", "Kene", "Juno", "Rio", "Sable"] as const;

@@ -7,19 +7,24 @@ import { Combobox } from "@/components/ui/Combobox";
 import { SettingsGroup, SettingsShell } from "./SettingsShell";
 import { SaveBar } from "./SaveBar";
 import { AvatarEditor } from "./AvatarEditor";
+import { ConnectedAccounts } from "./ConnectedAccounts";
 import { useSettingsForm } from "@/lib/settings/client";
 import { COUNTRIES, TIMEZONES } from "@/lib/settings/defaults";
-import type { AuthProvider, ProfileDetails } from "@/lib/auth/store";
+import type { AuthProvider, Connections, ProfileDetails } from "@/lib/auth/store";
 
 type Draft = ProfileDetails & { name: string; avatarUrl: string };
 
 export function ProfileForm({
   email,
   providers,
+  connections,
+  dailyCap,
   initial,
 }: {
   email: string;
   providers: AuthProvider[];
+  connections: Connections;
+  dailyCap: number;
   initial: Draft;
 }) {
   const router = useRouter();
@@ -107,6 +112,13 @@ export function ProfileForm({
             placeholder="Start typing…"
             hint="Your AI employee only sends during the hours you set, in this timezone."
           />
+        </SettingsGroup>
+
+        <SettingsGroup
+          title="Sending accounts"
+          description="Where outreach leaves from, and whether that account is warm enough to carry your volume."
+        >
+          <ConnectedAccounts connections={connections} dailyCap={dailyCap} />
         </SettingsGroup>
 
         <SettingsGroup

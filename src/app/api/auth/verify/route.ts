@@ -50,6 +50,7 @@ export async function POST(request: Request) {
       emailVerifiedAt: new Date().toISOString(),
       providers: ["password"],
       createdAt: new Date().toISOString(),
+      workspaces: [],
     };
     db.users.push(user);
     db.challenges = db.challenges.filter((c) => c.id !== challengeId);

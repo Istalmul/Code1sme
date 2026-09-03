@@ -313,3 +313,23 @@
   transition-duration: 0.001ms !important;
   scroll-behavior: auto !important;
 }
+
+/* ---------------------------------------------------------------------------
+   Chart series
+   Fixed categorical slots, validated for colour-vision separation against both
+   surfaces. Deliberately independent of the user's accent, which can change.
+--------------------------------------------------------------------------- */
+:root {
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --series-1: #3987e5;
+    --series-2: #d95926;
+  }
+}
+:root[data-theme="dark"] {
+  --series-1: #3987e5;
+  --series-2: #d95926;
+}

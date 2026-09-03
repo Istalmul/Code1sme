@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 import { z } from "zod";
 import { fromZod, fail } from "@/lib/auth/respond";
 import {
@@ -42,12 +43,16 @@ export async function POST(request: Request) {
     if (!found) return null;
     // Onboarding collects identity; the operational settings arrive as
     // defaults the user can revise in Settings whenever they want to.
-    found.workspace = {
+    const workspace = {
       ...parsed.data,
+      id: crypto.randomUUID(),
+      color: "blue" as const,
       aiEmployee: { ...parsed.data.aiEmployee, ...DEFAULT_EMPLOYEE },
       criteria: DEFAULT_CRITERIA,
       documents: [],
     };
+    found.workspaces = [...(found.workspaces ?? []), workspace];
+    found.activeWorkspaceId = workspace.id;
     found.appearance ??= DEFAULT_APPEARANCE;
     found.profile ??= DEFAULT_PROFILE;
     found.onboardingCompletedAt ??= new Date().toISOString();

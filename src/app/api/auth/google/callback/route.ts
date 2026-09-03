@@ -71,6 +71,7 @@ export async function GET(request: Request) {
       googleSub: profile.sub,
       avatarUrl: profile.picture,
       createdAt: new Date().toISOString(),
+      workspaces: [],
     };
     db.users.push(created);
     return created;

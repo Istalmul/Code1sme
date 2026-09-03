@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Radar, Target, Users } from "lucide-react";
+import { BarChart3, Compass, Radar, Target, Users } from "lucide-react";
 
 /**
  * Four destinations, matching how the product actually works: where you stand,
@@ -14,6 +14,7 @@ export const NAV = [
   { href: "/missions", label: "Missions", short: "Missions", icon: Target },
   { href: "/opportunities", label: "Opportunities", short: "Signals", icon: Radar },
   { href: "/workforce", label: "Workforce", short: "Team", icon: Users },
+  { href: "/analytics", label: "Analytics", short: "Stats", icon: BarChart3 },
 ] as const;
 
 function isActive(pathname: string, href: string) {

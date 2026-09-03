@@ -8,7 +8,8 @@ export const metadata: Metadata = { title: "Set up your workspace" };
 
 export default async function OnboardingPage() {
   const user = await requireUser();
-  if (user.workspace) redirect("/command-center");
+  // Someone who already has a workspace has finished this flow.
+  if (user.workspaces.length > 0) redirect("/command-center");
 
   return (
     <OnboardingFlow

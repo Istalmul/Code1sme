@@ -108,6 +108,61 @@ questions are answered without opening anything.
 The sidebar collapses to an icon rail, and the toggle that brings it back never
 disappears. The choice persists across reloads.
 
+### Several businesses, one account
+
+An agency or a founder with a side venture can run more than one business. Each
+carries its own AI employee, criteria, proof points, pipeline and settings, and
+nothing crosses between them — opportunity ids are namespaced by workspace, so
+a link copied out of one business does not resolve inside another. The switcher
+sits above navigation (because which business you are in changes what every
+item below it means) and confirms the switch by naming the AI employee you will
+land on. Businesses can be duplicated, archived and restored; the last active
+one cannot be archived or deleted.
+
+### Analytics
+
+Fourteen days of activity, with a two-series line chart of sent against
+replied. The chart, the table view and the CSV export all read the same rows —
+nothing is interpolated from a total after the fact. Its two hues are fixed
+categorical slots validated for colour-vision separation against both the light
+and the dark chart surface, deliberately independent of the user's accent. Stat
+tiles carry their own denominator, so a percentage is never floating free.
+
+### Sending accounts and contact verification
+
+Connecting an email or WhatsApp account records where outreach would leave from
+and starts a warm-up clock. Domain reputation is earned, so the warm-up stage
+caps what can actually go out — and when the configured daily cap is higher
+than the account can safely carry, the screen says so rather than silently
+ignoring the setting.
+
+Each contact carries a verification state (verified, risky, or no address
+found) shown *before* a draft is approved, because a bounce costs sender
+reputation and is discovered too late otherwise.
+
+### Real AI, and real sourcing
+
+Both are optional, and both are honest about which mode you are in.
+
+- **OpenRouter** (`OPENROUTER_API_KEY`) powers the two-step research and draft
+  on an opportunity: study the company, then write from what was found. The
+  analysis is shown separately from the draft, because wrong reasoning is
+  easier to spot in prose than in a finished email. Without a key the app falls
+  back to deterministic templates and labels them as templates — a template
+  passed off as model output would destroy exactly the trust the product runs
+  on. Model defaults to `anthropic/claude-opus-5`; set `OPENROUTER_MODEL` for
+  anything else OpenRouter fronts.
+- **Apollo** (`APOLLO_API_KEY`) turns the workspace's own ICP into a people
+  search — target markets become keyword tags, company sizes become employee
+  ranges, decision-maker titles filter the roles. Search and enrichment are
+  separate steps on purpose: searching is cheap and withholds contact details,
+  while revealing one spends a credit, so nothing is enriched until you ask.
+  Sourced people are shown apart from opportunities, since nothing has happened
+  at those companies yet.
+
+Both base URLs are overridable (`OPENROUTER_BASE_URL`, `APOLLO_BASE_URL`),
+which is how the request shapes are tested without a live key.
+
 ### Per-screen decisions
 
 | Screen | Problem | Change |
@@ -125,6 +180,10 @@ disappears. The choice persists across reloads.
 | Settings | Did not exist — onboarding answers were write-once | A flat list of sub-pages; every answer editable, each row showing its value |
 | Pipeline counts | Numbers with no way to act on them | Each count is the link that filters to it |
 | Small option sets | Hidden in dropdowns | Shown as pills or cards; only long lists keep a typeahead |
+| Multiple businesses | One workspace per account | Each business carries its own employee, pipeline and settings, isolated by id |
+| Reporting | Flat counts | A trend chart, a table view and a CSV export reading the same rows |
+| Deliverability | Nothing said about it | Warm-up state caps real volume; contacts verified before a draft is approved |
+| AI output | Templates only | Real model calls, with templates labelled as templates when no key is set |
 
 ### Accessibility and responsive behaviour
 

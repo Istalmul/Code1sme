@@ -16,6 +16,60 @@ function hoursAgo(hours: number): string {
   return new Date(Date.now() - hours * 3_600_000).toISOString();
 }
 
+/**
+ * A small deterministic generator, seeded from the workspace id, so the daily
+ * history is stable across reloads and differs between businesses.
+ */
+function seeded(seed: string): () => number {
+  let h = 2166136261;
+  for (const ch of seed) {
+    h ^= ch.charCodeAt(0);
+    h = Math.imul(h, 16777619);
+  }
+  return () => {
+    h ^= h << 13;
+    h ^= h >>> 17;
+    h ^= h << 5;
+    return ((h >>> 0) % 1000) / 1000;
+  };
+}
+
+export type DailyRow = {
+  date: string;
+  researched: number;
+  opportunities: number;
+  sent: number;
+  replied: number;
+};
+
+/**
+ * Fourteen days of activity, generated once and then read by the chart, the
+ * table and the CSV alike — so all three agree. Nothing here is interpolated
+ * from a total after the fact.
+ */
+function buildDaily(seed: string, days = 14): DailyRow[] {
+  const random = seeded(seed);
+  const rows: DailyRow[] = [];
+  for (let offset = days - 1; offset >= 0; offset--) {
+    const date = new Date(Date.now() - offset * 86_400_000);
+    const weekend = date.getDay() === 0 || date.getDay() === 6;
+    // Weekends are quiet because the default send window excludes them.
+    const scale = weekend ? 0.15 : 1;
+    const researched = Math.round((28 + random() * 34) * scale);
+    const opportunities = Math.round(researched * (0.05 + random() * 0.05));
+    const sent = Math.round(opportunities * (0.4 + random() * 0.5));
+    const replied = Math.round(sent * (0.1 + random() * 0.25));
+    rows.push({
+      date: date.toISOString().slice(0, 10),
+      researched,
+      opportunities,
+      sent,
+      replied,
+    });
+  }
+  return rows;
+}
+
 const PROSPECTS: Prospect[] = [
   {
     id: "p-1",
@@ -24,7 +78,15 @@ const PROSPECTS: Prospect[] = [
     industry: "Logistics & supply chain",
     employees: "180",
     location: "Manchester, UK",
-    contact: { name: "Priya Raman", title: "Operations Director" },
+    foundVia: "Companies House + company newsroom",
+    contact: {
+      name: "Priya Raman",
+      title: "Operations Director",
+      email: "p.raman@northgate-logistics.co.uk",
+      phone: "+44 161 496 0142",
+      linkedin: "linkedin.com/in/priyaraman",
+      verification: "verified",
+    },
   },
   {
     id: "p-2",
@@ -33,7 +95,14 @@ const PROSPECTS: Prospect[] = [
     industry: "Manufacturing",
     employees: "420",
     location: "Leeds, UK",
-    contact: { name: "Tom Whitaker", title: "Head of Procurement" },
+    foundVia: "Careers page monitoring",
+    contact: {
+      name: "Tom Whitaker",
+      title: "Head of Procurement",
+      email: "t.whitaker@haldenfoods.com",
+      linkedin: "linkedin.com/in/tomwhitaker",
+      verification: "risky",
+    },
   },
   {
     id: "p-3",
@@ -42,7 +111,13 @@ const PROSPECTS: Prospect[] = [
     industry: "Healthcare",
     employees: "65",
     location: "Bristol, UK",
-    contact: { name: "Dr. Amara Nwosu", title: "Clinical Operations Lead" },
+    foundVia: "LinkedIn company page",
+    contact: {
+      name: "Dr. Amara Nwosu",
+      title: "Clinical Operations Lead",
+      linkedin: "linkedin.com/in/amaranwosu",
+      verification: "unverified",
+    },
   },
   {
     id: "p-4",
@@ -51,7 +126,14 @@ const PROSPECTS: Prospect[] = [
     industry: "Retail & e-commerce",
     employees: "38",
     location: "Dublin, IE",
-    contact: { name: "Sean Doyle", title: "Founder" },
+    foundVia: "Funding announcement feed",
+    contact: {
+      name: "Sean Doyle",
+      title: "Founder",
+      email: "sean@brambleandco.com",
+      whatsapp: "+353 1 902 4471",
+      verification: "verified",
+    },
   },
   {
     id: "p-5",
@@ -60,7 +142,14 @@ const PROSPECTS: Prospect[] = [
     industry: "Financial services",
     employees: "240",
     location: "London, UK",
-    contact: { name: "Laura Beckett", title: "COO" },
+    foundVia: "Company announcements feed",
+    contact: {
+      name: "Laura Beckett",
+      title: "COO",
+      email: "l.beckett@kestrelfinancial.com",
+      phone: "+44 20 7946 0812",
+      verification: "verified",
+    },
   },
 ];
 
@@ -68,10 +157,18 @@ export function buildWorkspace(workspace: Workspace) {
   const suggested = suggestFirstMission(workspace);
   const employeeName = workspace.aiEmployee.name;
 
+  /**
+   * Ids are namespaced by workspace, so a link copied out of one business
+   * cannot resolve inside another. This is the shape a real database would
+   * enforce with a foreign key.
+   */
+  const key = workspace.id.slice(0, 8);
+  const id = (local: string) => `${key}-${local}`;
+
   const missions: Mission[] = [
     {
       ...suggested,
-      id: "m-1",
+      id: id("m-1"),
       status: "running",
       createdAt: hoursAgo(72),
       progress: { researched: 412, qualified: 87, opportunities: 12, contacted: 31, replies: 6 },
@@ -80,13 +177,13 @@ export function buildWorkspace(workspace: Workspace) {
 
   const employees: Employee[] = [
     {
-      id: "emp-1",
+      id: id("emp-1"),
       name: employeeName,
       role: workspace.aiEmployee.role,
       tone: workspace.aiEmployee.tone,
       // A paused employee is idle by definition, whatever else is outstanding.
       status: workspace.aiEmployee.paused ? "paused" : "waiting-on-you",
-      missionId: "m-1",
+      missionId: id("m-1"),
       currentTask: workspace.aiEmployee.paused
         ? "Nothing — paused. Everything already found is still here."
         : `Reading Northgate Logistics' new depot announcement to check it fits ${
@@ -102,9 +199,9 @@ export function buildWorkspace(workspace: Workspace) {
 
   const opportunities: Opportunity[] = [
     {
-      id: "o-1",
-      missionId: "m-1",
-      employeeId: "emp-1",
+      id: id("o-1"),
+      missionId: id("m-1"),
+      employeeId: id("emp-1"),
       prospect: PROSPECTS[0],
       signal: {
         kind: "expansion",
@@ -146,9 +243,9 @@ export function buildWorkspace(workspace: Workspace) {
       foundAt: hoursAgo(20),
     },
     {
-      id: "o-2",
-      missionId: "m-1",
-      employeeId: "emp-1",
+      id: id("o-2"),
+      missionId: id("m-1"),
+      employeeId: id("emp-1"),
       prospect: PROSPECTS[1],
       signal: {
         kind: "hiring",
@@ -180,9 +277,9 @@ export function buildWorkspace(workspace: Workspace) {
       foundAt: hoursAgo(44),
     },
     {
-      id: "o-3",
-      missionId: "m-1",
-      employeeId: "emp-1",
+      id: id("o-3"),
+      missionId: id("m-1"),
+      employeeId: id("emp-1"),
       prospect: PROSPECTS[2],
       signal: {
         kind: "leadership",
@@ -223,9 +320,9 @@ export function buildWorkspace(workspace: Workspace) {
       foundAt: hoursAgo(70),
     },
     {
-      id: "o-4",
-      missionId: "m-1",
-      employeeId: "emp-1",
+      id: id("o-4"),
+      missionId: id("m-1"),
+      employeeId: id("emp-1"),
       prospect: PROSPECTS[3],
       signal: {
         kind: "funding",
@@ -256,9 +353,9 @@ export function buildWorkspace(workspace: Workspace) {
       foundAt: hoursAgo(96),
     },
     {
-      id: "o-5",
-      missionId: "m-1",
-      employeeId: "emp-1",
+      id: id("o-5"),
+      missionId: id("m-1"),
+      employeeId: id("emp-1"),
       prospect: PROSPECTS[4],
       signal: {
         kind: "leadership",
@@ -289,9 +386,9 @@ export function buildWorkspace(workspace: Workspace) {
       foundAt: hoursAgo(120),
     },
     {
-      id: "o-6",
-      missionId: "m-1",
-      employeeId: "emp-1",
+      id: id("o-6"),
+      missionId: id("m-1"),
+      employeeId: id("emp-1"),
       prospect: {
         id: "p-6",
         company: "Ashgrove Interiors",
@@ -299,7 +396,14 @@ export function buildWorkspace(workspace: Workspace) {
         industry: "Construction & trades",
         employees: "54",
         location: "Birmingham, UK",
-        contact: { name: "Marcus Bell", title: "Managing Director" },
+        foundVia: "Trade press monitoring",
+        contact: {
+      name: "Marcus Bell",
+      title: "Managing Director",
+      email: "hello@ashgroveinteriors.co.uk",
+      whatsapp: "+44 7700 900318",
+      verification: "risky",
+    },
       },
       signal: {
         kind: "news",
@@ -333,54 +437,61 @@ export function buildWorkspace(workspace: Workspace) {
 
   const activity: ActivityEvent[] = [
     {
-      id: "a-1",
+      id: id("a-1"),
       at: hoursAgo(1),
-      employeeId: "emp-1",
-      missionId: "m-1",
+      employeeId: id("emp-1"),
+      missionId: id("m-1"),
       kind: "found",
       summary: "Found Northgate Logistics' depot expansion",
       detail: "Scored 92 — the strongest signal this week.",
-      opportunityId: "o-1",
+      opportunityId: id("o-1"),
     },
     {
-      id: "a-2",
+      id: id("a-2"),
       at: hoursAgo(2),
-      employeeId: "emp-1",
-      missionId: "m-1",
+      employeeId: id("emp-1"),
+      missionId: id("m-1"),
       kind: "skipped",
       summary: "Skipped 14 companies from the Manchester batch",
       detail: "All under 10 staff, which is outside the size range on this mission.",
     },
     {
-      id: "a-3",
+      id: id("a-3"),
       at: hoursAgo(4),
-      employeeId: "emp-1",
-      missionId: "m-1",
+      employeeId: id("emp-1"),
+      missionId: id("m-1"),
       kind: "reply",
       summary: "Kestrel Financial replied",
       detail: "Laura Beckett asked for pricing. This one needs you.",
     },
     {
-      id: "a-4",
+      id: id("a-4"),
       at: hoursAgo(7),
-      employeeId: "emp-1",
-      missionId: "m-1",
+      employeeId: id("emp-1"),
+      missionId: id("m-1"),
       kind: "sent",
       summary: "Sent 8 approved emails",
       detail: "All eight were approved by you yesterday evening.",
     },
     {
-      id: "a-5",
+      id: id("a-5"),
       at: hoursAgo(9),
-      employeeId: "emp-1",
-      missionId: "m-1",
+      employeeId: id("emp-1"),
+      missionId: id("m-1"),
       kind: "researched",
       summary: "Researched 46 companies",
       detail: "12 matched the mission criteria closely enough to score.",
     },
   ];
 
-  return { missions, employees, opportunities, activity, prospects: PROSPECTS };
+  return {
+    missions,
+    employees,
+    opportunities,
+    activity,
+    prospects: PROSPECTS,
+    daily: buildDaily(workspace.id),
+  };
 }
 
 export type WorkspaceData = ReturnType<typeof buildWorkspace>;
