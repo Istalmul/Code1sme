@@ -19,6 +19,8 @@ type Filter = {
 const FILTERS: Filter[] = [
   { key: "waiting", label: "Waiting on you", statuses: ["awaiting-approval"] },
   { key: "researching", label: "In research", statuses: ["researching"] },
+  { key: "sent", label: "Sent", statuses: ["sent", "approved"] },
+  { key: "replied", label: "Replied", statuses: ["replied"] },
   { key: "all", label: "All", statuses: null },
 ];
 

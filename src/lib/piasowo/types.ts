@@ -34,7 +34,13 @@ export type ScoreFactor = {
   why: string;
 };
 
-export type OpportunityStatus = "awaiting-approval" | "researching" | "approved" | "sent" | "dismissed";
+export type OpportunityStatus =
+  | "awaiting-approval"
+  | "researching"
+  | "approved"
+  | "sent"
+  | "replied"
+  | "dismissed";
 
 export type Opportunity = {
   id: string;

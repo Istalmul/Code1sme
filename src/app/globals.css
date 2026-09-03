@@ -49,6 +49,10 @@
   --radius-card: 0.75rem;
   --radius-control: 0.5rem;
 
+  /* Narrower than Tailwind's smallest default, for the few places where a
+     360px phone needs different treatment from a 320px one. */
+  --breakpoint-xs: 22rem;
+
   /* Semantic aliases so components write `bg-surface` / `text-muted` instead
      of arbitrary-value escapes. These resolve to the themed variables below,
      which is why they stay correct in light and dark. */
@@ -221,4 +225,91 @@
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Accent colour
+   The accent is the only hue in the product, so switching it means rebinding
+   the brand ramp rather than restyling components. Each accent ships a light
+   and a dark tint pair so contrast holds in both themes.
+--------------------------------------------------------------------------- */
+:root[data-accent="teal"] {
+  --color-brand-500: #109384;
+  --color-brand-600: #0d7d72;
+  --color-brand-700: #0a635c;
+  --tint-brand: #d6f0ec;
+  --on-brand: #0a635c;
+  --link: #0a635c;
+}
+:root[data-accent="violet"] {
+  --color-brand-500: #7c5ae0;
+  --color-brand-600: #6d47c9;
+  --color-brand-700: #5836a6;
+  --tint-brand: #ebe4fa;
+  --on-brand: #5836a6;
+  --link: #5836a6;
+}
+:root[data-accent="amber"] {
+  --color-brand-500: #c17a00;
+  --color-brand-600: #a76500;
+  --color-brand-700: #855100;
+  --tint-brand: #fbeecd;
+  --on-brand: #7a4900;
+  --link: #7a4900;
+}
+:root[data-accent="rose"] {
+  --color-brand-500: #d63a63;
+  --color-brand-600: #c0264f;
+  --color-brand-700: #9d1c40;
+  --tint-brand: #fbdfe6;
+  --on-brand: #9d1c40;
+  --link: #9d1c40;
+}
+
+/* Dark-theme tints for each accent, applied for both the explicit dark choice
+   and the system-dark default. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-accent="teal"] { --tint-brand: #0c2b29; --on-brand: #5fd6c5; --link: #5fd6c5; }
+  :root:not([data-theme="light"])[data-accent="violet"] { --tint-brand: #241c3e; --on-brand: #c0adfa; --link: #c0adfa; }
+  :root:not([data-theme="light"])[data-accent="amber"] { --tint-brand: #322309; --on-brand: #f0c04d; --link: #f0c04d; }
+  :root:not([data-theme="light"])[data-accent="rose"] { --tint-brand: #3a1220; --on-brand: #f5a0b8; --link: #f5a0b8; }
+}
+:root[data-theme="dark"][data-accent="teal"] { --tint-brand: #0c2b29; --on-brand: #5fd6c5; --link: #5fd6c5; }
+:root[data-theme="dark"][data-accent="violet"] { --tint-brand: #241c3e; --on-brand: #c0adfa; --link: #c0adfa; }
+:root[data-theme="dark"][data-accent="amber"] { --tint-brand: #322309; --on-brand: #f0c04d; --link: #f0c04d; }
+:root[data-theme="dark"][data-accent="rose"] { --tint-brand: #3a1220; --on-brand: #f5a0b8; --link: #f5a0b8; }
+
+/* ---------------------------------------------------------------------------
+   Density
+   Compact trades breathing room for rows on screen. It changes padding only —
+   never type size — so nothing becomes harder to read.
+--------------------------------------------------------------------------- */
+:root {
+  --pad-card: 1.25rem;
+  --gap-list: 0.75rem;
+}
+:root[data-density="compact"] {
+  --pad-card: 0.875rem;
+  --gap-list: 0.5rem;
+}
+
+@layer utilities {
+  .p-card {
+    padding: var(--pad-card);
+  }
+  .gap-list {
+    gap: var(--gap-list);
+  }
+}
+
+/* An in-app override, for people whose OS setting doesn't match what they want
+   here. The OS preference is still honoured separately, above. */
+:root[data-reduce-motion="true"],
+:root[data-reduce-motion="true"] *,
+:root[data-reduce-motion="true"] *::before,
+:root[data-reduce-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
 }

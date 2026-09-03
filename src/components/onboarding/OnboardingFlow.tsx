@@ -8,6 +8,7 @@ import { Field } from "@/components/ui/Field";
 import { Alert } from "@/components/ui/Alert";
 import { ChipGroup } from "@/components/ui/Chip";
 import { OptionCard } from "@/components/ui/OptionCard";
+import { Combobox } from "@/components/ui/Combobox";
 import { Logo } from "@/components/ui/Logo";
 import { StepMeter } from "@/components/auth/StepMeter";
 import { post } from "@/lib/api";
@@ -168,40 +169,17 @@ export function OnboardingFlow({
                 hint="Optional. It helps your AI employee understand what you do."
               />
 
-              <div>
-                <label
-                  htmlFor="industry"
-                  className="mb-1.5 block text-[13px] font-medium text-body"
-                >
-                  Your industry
-                </label>
-                <select
-                  id="industry"
-                  value={industry}
-                  onChange={(e) => chooseIndustry(e.target.value)}
-                  aria-invalid={errors.industry ? true : undefined}
-                  className={`h-11 w-full rounded-lg border bg-surface px-3.5 text-[15px] text-body
-                    focus:outline-none focus:ring-2 focus:ring-brand-500/35 ${
-                      errors.industry ? "border-bad-600" : "border-line-strong focus:border-brand-500"
-                    }`}
-                >
-                  <option value="">Choose the closest match</option>
-                  {INDUSTRIES.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                {errors.industry ? (
-                  <p role="alert" className="mt-1.5 text-[13px] text-on-bad">
-                    {errors.industry}
-                  </p>
-                ) : (
-                  <p className="mt-1.5 text-[13px] text-muted">
-                    We use this to suggest who to target next.
-                  </p>
-                )}
-              </div>
+              {/* Typeahead rather than a long dropdown: it filters as you type
+                  and still accepts an industry that isn't on our list. */}
+              <Combobox
+                label="Your industry"
+                options={INDUSTRIES}
+                value={industry}
+                onChange={chooseIndustry}
+                error={errors.industry}
+                placeholder="Start typing, e.g. Logistics"
+                hint="We use this to suggest who to target next."
+              />
 
               <div>
                 <label

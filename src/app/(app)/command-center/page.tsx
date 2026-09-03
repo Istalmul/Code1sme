@@ -1,25 +1,38 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Inbox } from "lucide-react";
+import { ArrowRight, Inbox, PauseCircle } from "lucide-react";
 import { requireWorkspace } from "@/lib/piasowo/session-data";
 import { greeting } from "@/lib/piasowo/format";
 import { OpportunityCard } from "@/components/piasowo/OpportunityCard";
 import { EmployeeStatusPanel } from "@/components/piasowo/EmployeeStatus";
 import { ActivityFeed } from "@/components/piasowo/ActivityFeed";
 import { EmptyState } from "@/components/piasowo/EmptyState";
+import { PipelinePills } from "@/components/piasowo/PipelinePills";
+import { DEFAULT_CRITERIA } from "@/lib/settings/defaults";
 import { ButtonLink } from "@/components/ui/Button";
 import { CardHeader } from "@/components/ui/Card";
 
 export const metadata: Metadata = { title: "Command Center" };
 
 export default async function CommandCenterPage() {
-  const { user, data } = await requireWorkspace();
+  const { user, workspace, data } = await requireWorkspace();
   const employee = data.employees[0];
   const mission = data.missions[0];
+  const paused = workspace.aiEmployee.paused;
+  const minScore = (workspace.criteria ?? DEFAULT_CRITERIA).minScore;
 
-  const waiting = data.opportunities
-    .filter((o) => o.status === "awaiting-approval")
-    .sort((a, b) => b.score - a.score);
+  const pending = data.opportunities.filter((o) => o.status === "awaiting-approval");
+  // Weak matches are held back, not deleted — and the count says so, so a
+  // quiet screen is never mistaken for a broken one.
+  const waiting = pending.filter((o) => o.score >= minScore).sort((a, b) => b.score - a.score);
+  const heldBack = pending.length - waiting.length;
+
+  const counts = {
+    waiting: waiting.length,
+    researching: data.opportunities.filter((o) => o.status === "researching").length,
+    sent: data.opportunities.filter((o) => o.status === "sent" || o.status === "approved").length,
+    replied: data.opportunities.filter((o) => o.status === "replied").length,
+  };
 
   // One item is the recommended next action. Everything else on this screen is
   // deliberately quieter than it.
@@ -41,7 +54,23 @@ export default async function CommandCenterPage() {
             ? `${waiting.length} ${waiting.length === 1 ? "item needs" : "items need"} your decision.`
             : "Nothing needs your decision right now."}
         </p>
+
+        <div className="mt-4">
+          <PipelinePills counts={counts} />
+        </div>
       </header>
+
+      {paused && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-on-warn/30 bg-tint-warn px-4 py-3.5">
+          <p className="flex items-center gap-2 text-[13px] font-medium text-on-warn">
+            <PauseCircle className="size-4 shrink-0" aria-hidden="true" />
+            {employee.name} is paused. Nothing new is being researched or sent.
+          </p>
+          <ButtonLink href="/settings/employee" variant="secondary" size="sm">
+            Resume in Settings
+          </ButtonLink>
+        </div>
+      )}
 
       {top ? (
         <section aria-labelledby="start-here">
@@ -54,6 +83,17 @@ export default async function CommandCenterPage() {
             </p>
           </div>
           <OpportunityCard opportunity={top} emphasis />
+
+          {heldBack > 0 && (
+            <p className="mt-3 text-[13px] text-muted">
+              {heldBack} {heldBack === 1 ? "opportunity was" : "opportunities were"} held back for
+              scoring below {minScore}.{" "}
+              <Link href="/settings/employee" className="rounded font-medium text-link hover:underline">
+                Change the threshold
+              </Link>
+              .
+            </p>
+          )}
         </section>
       ) : (
         <section className="rounded-xl border border-line bg-surface shadow-card">

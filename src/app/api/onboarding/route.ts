@@ -8,6 +8,12 @@ import {
   signSession,
 } from "@/lib/auth/session";
 import { transaction } from "@/lib/auth/store";
+import {
+  DEFAULT_APPEARANCE,
+  DEFAULT_CRITERIA,
+  DEFAULT_EMPLOYEE,
+  DEFAULT_PROFILE,
+} from "@/lib/settings/defaults";
 
 const workspaceSchema = z.object({
   companyName: z.string().trim().min(1, "Enter your company name").max(120),
@@ -34,7 +40,16 @@ export async function POST(request: Request) {
   const user = await transaction((db) => {
     const found = db.users.find((u) => u.id === session.sub);
     if (!found) return null;
-    found.workspace = parsed.data;
+    // Onboarding collects identity; the operational settings arrive as
+    // defaults the user can revise in Settings whenever they want to.
+    found.workspace = {
+      ...parsed.data,
+      aiEmployee: { ...parsed.data.aiEmployee, ...DEFAULT_EMPLOYEE },
+      criteria: DEFAULT_CRITERIA,
+      documents: [],
+    };
+    found.appearance ??= DEFAULT_APPEARANCE;
+    found.profile ??= DEFAULT_PROFILE;
     found.onboardingCompletedAt ??= new Date().toISOString();
     return found;
   });

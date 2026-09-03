@@ -25,6 +25,8 @@ export type User = {
   /** Set once the user finishes onboarding; drives the post-login redirect. */
   onboardingCompletedAt?: string;
   workspace?: Workspace;
+  appearance?: Appearance;
+  profile?: ProfileDetails;
 };
 
 export type Workspace = {
@@ -35,7 +37,61 @@ export type Workspace = {
   industry: string;
   targetMarkets: string[];
   companySizes: string[];
-  aiEmployee: { name: string; role: string; tone: string; avatarSeed: string };
+  aiEmployee: AiEmployeeSettings;
+  /**
+   * Proof points the AI draws on when drafting — case studies, results, a CV.
+   * Uploaded text lands here, and a draft may cite at most one line of it.
+   */
+  documents?: WorkspaceDocument[];
+  /** Hard rules the AI applies before an opportunity ever reaches the user. */
+  criteria?: { minScore: number; dealBreakers: string };
+};
+
+export type WorkspaceDocument = {
+  id: string;
+  name: string;
+  /** Extracted plain text. Binary formats are converted before storage. */
+  text: string;
+  addedAt: string;
+};
+
+export type AiEmployeeSettings = {
+  name: string;
+  role: string;
+  tone: string;
+  avatarSeed: string;
+  /** A hard stop: no research, no drafting, nothing. Distinct from manual. */
+  paused: boolean;
+  approval: "every-message" | "first-five" | "automatic";
+  dailyCap: number;
+  /**
+   * Outreach only leaves during these hours, in the user's timezone. Without
+   * this an automated mission would happily email someone at 3am.
+   */
+  sendWindow: { start: number; end: number; weekends: boolean };
+  /** Messages per hour, so a daily cap isn't spent in one burst. */
+  hourlyCap: number;
+  followUp: { enabled: boolean; afterDays: number; max: number };
+  digest: "daily" | "twice-daily" | "off";
+};
+
+export type Appearance = {
+  theme: "system" | "light" | "dark";
+  accent: "blue" | "teal" | "violet" | "amber" | "rose";
+  density: "comfortable" | "compact";
+  reduceMotion: boolean;
+};
+
+export type ProfileDetails = {
+  jobTitle?: string;
+  phone?: string;
+  country?: string;
+  timezone?: string;
+  notifications: {
+    strongOpportunity: boolean;
+    reply: boolean;
+    digest: boolean;
+  };
 };
 
 /** A pending 6-digit code. The code itself is never stored in the clear. */

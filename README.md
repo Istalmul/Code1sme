@@ -81,6 +81,33 @@ word, and the detail page itemises every factor against its maximum, so the
 reader can see where points were held back. Exactly one action per screen is a
 filled button.
 
+### Settings
+
+Everything collected during onboarding is editable afterwards, under
+`/settings` — a flat list where each row shows its current value, so most
+questions are answered without opening anything.
+
+- **Profile** — photo with a real crop step (drag to position, zoom, saved as a
+  256px square), name, job title, phone, country, timezone, and which events
+  are worth a notification.
+- **AI employee** — rename it, choose its focus and writing voice, and set what
+  it may do unsupervised: approval mode, minimum score, send window, hourly and
+  daily pacing, follow-up, digest frequency. A preset sets volume, pacing and
+  threshold together for anyone who doesn't want to reason about each one.
+  Pause is a hard stop, distinct from approving each message.
+- **Workspace** — company details, an industry typeahead, target markets,
+  deal-breakers, and proof points. Proof points are what the AI writes *from*:
+  paste one, or upload a `.docx`, `.txt`, `.md` or `.csv` (parsed in the
+  browser — only the extracted text is stored). Without one, an opportunity's
+  draft says so and links here.
+- **Appearance** — system/light/dark, five accents, comfortable or compact
+  density, and an in-app reduce-motion override. Changes preview live and are
+  only kept on Done. Theme is resolved on the server and stamped onto `<html>`,
+  so there is no flash of the wrong theme on load.
+
+The sidebar collapses to an icon rail, and the toggle that brings it back never
+disappears. The choice persists across reloads.
+
 ### Per-screen decisions
 
 | Screen | Problem | Change |
@@ -95,14 +122,18 @@ filled button.
 | AI employee | Read as a chatbot | Doing now / next / on mission, stated plainly, before any history |
 | Opportunities | A number with no reasoning | What happened, why it matters, the itemised score, the draft with its sources, and one recommended action |
 | Empty states | "No opportunities found." | What is empty, why it matters, and a preconfigured next step |
+| Settings | Did not exist — onboarding answers were write-once | A flat list of sub-pages; every answer editable, each row showing its value |
+| Pipeline counts | Numbers with no way to act on them | Each count is the link that filters to it |
+| Small option sets | Hidden in dropdowns | Shown as pills or cards; only long lists keep a typeahead |
 
 ### Accessibility and responsive behaviour
 
-All text meets WCAG AA (4.5:1, or 3:1 for large text) in both light and dark
-themes, verified by measuring computed colours against their painted
-backgrounds on every screen. No horizontal overflow at 320px. Every interactive
-element has an accessible name. One focus treatment throughout, and
-`prefers-reduced-motion` is respected globally.
+All text meets WCAG AA (4.5:1, or 3:1 for large text) across **every
+theme and accent combination** — ten in total — verified by measuring computed
+colours against their painted backgrounds on every screen. No horizontal
+overflow at 320px. Every interactive element has an accessible name. One focus
+treatment throughout; `prefers-reduced-motion` is respected globally, and the
+in-app override is honoured independently.
 
 Mobile is not a shrunken desktop: navigation moves to the thumb zone, and on
 the opportunity detail the recommended action is placed before the draft rather

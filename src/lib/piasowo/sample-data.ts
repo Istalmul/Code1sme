@@ -84,10 +84,17 @@ export function buildWorkspace(workspace: Workspace) {
       name: employeeName,
       role: workspace.aiEmployee.role,
       tone: workspace.aiEmployee.tone,
-      status: "waiting-on-you",
+      // A paused employee is idle by definition, whatever else is outstanding.
+      status: workspace.aiEmployee.paused ? "paused" : "waiting-on-you",
       missionId: "m-1",
-      currentTask: `Reading Northgate Logistics' new depot announcement to check it fits ${workspace.targetMarkets[0] ?? "your market"}`,
-      nextTask: "Draft an opening email for Halden Foods once you approve the three waiting",
+      currentTask: workspace.aiEmployee.paused
+        ? "Nothing — paused. Everything already found is still here."
+        : `Reading Northgate Logistics' new depot announcement to check it fits ${
+            workspace.targetMarkets[0] ?? "your market"
+          }`,
+      nextTask: workspace.aiEmployee.paused
+        ? "Resume from Settings to pick up where this left off"
+        : "Draft an opening email for Halden Foods once you approve the three waiting",
       completedToday: 46,
       awaitingApproval: 3,
     },
@@ -247,6 +254,80 @@ export function buildWorkspace(workspace: Workspace) {
       },
       status: "awaiting-approval",
       foundAt: hoursAgo(96),
+    },
+    {
+      id: "o-5",
+      missionId: "m-1",
+      employeeId: "emp-1",
+      prospect: PROSPECTS[4],
+      signal: {
+        kind: "leadership",
+        headline: "Named a new COO",
+        detail: "Laura Beckett stepped up from Operations Director on 18 February.",
+        observedAt: hoursAgo(120),
+        source: "Company announcement",
+      },
+      score: 84,
+      factors: [
+        { label: "Market fit", points: 25, max: 30, why: "Financial services, 240 staff, London — a good size for you." },
+        { label: "Signal strength", points: 23, max: 30, why: "An internal promotion to COO usually comes with a mandate to change something." },
+        { label: "Timing", points: 22, max: 25, why: "Six weeks in, which is when new COOs start reviewing suppliers." },
+        { label: "Reachability", points: 14, max: 15, why: "Direct address found and verified." },
+      ],
+      whyItMatters:
+        "Laura ran operations before this, so she already knows where the friction is. A promoted COO acts faster than an external hire still learning the business.",
+      timing: {
+        note: "You sent this five days ago and Laura replied asking for pricing. That reply is the thing waiting on you, not the signal.",
+        decaying: false,
+      },
+      recommendation: {
+        action: "schedule-followup",
+        label: "Answer the pricing question",
+        reason: "Laura asked for pricing directly. This is the one on this list closest to becoming revenue.",
+      },
+      status: "replied",
+      foundAt: hoursAgo(120),
+    },
+    {
+      id: "o-6",
+      missionId: "m-1",
+      employeeId: "emp-1",
+      prospect: {
+        id: "p-6",
+        company: "Ashgrove Interiors",
+        domain: "ashgroveinteriors.co.uk",
+        industry: "Construction & trades",
+        employees: "54",
+        location: "Birmingham, UK",
+        contact: { name: "Marcus Bell", title: "Managing Director" },
+      },
+      signal: {
+        kind: "news",
+        headline: "Won a 40-unit residential fit-out contract",
+        detail: "Announced 26 February in the trade press, delivery through to autumn.",
+        observedAt: hoursAgo(140),
+        source: "Trade press",
+      },
+      score: 69,
+      factors: [
+        { label: "Market fit", points: 20, max: 30, why: "Construction, 54 staff — adjacent to your core market rather than in it." },
+        { label: "Signal strength", points: 21, max: 30, why: "A named contract with a delivery window is concrete, not a press mention." },
+        { label: "Timing", points: 18, max: 25, why: "Delivery runs to autumn, so the pressure builds rather than passes." },
+        { label: "Reachability", points: 10, max: 15, why: "Generic company address only; the MD's direct line wasn't found." },
+      ],
+      whyItMatters:
+        "A 40-unit fit-out is a step up in scale for a 54-person firm. That gap between won work and current capacity is usually where they start buying.",
+      timing: {
+        note: "You approved this two days ago and it went out yesterday. Nothing to do until they reply.",
+        decaying: false,
+      },
+      recommendation: {
+        action: "schedule-followup",
+        label: "Wait for a reply",
+        reason: `${employeeName} will follow up once if there's no reply after four days, in line with your settings.`,
+      },
+      status: "sent",
+      foundAt: hoursAgo(140),
     },
   ];
 

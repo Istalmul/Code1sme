@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { htmlAttributes, loadAppearance } from "@/lib/settings/appearance";
 
 export const metadata: Metadata = {
   title: {
@@ -16,9 +17,11 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const appearance = await loadAppearance();
+
   return (
-    <html lang="en">
+    <html lang="en" {...htmlAttributes(appearance)}>
       <body className="antialiased">
         <a
           href="#main"

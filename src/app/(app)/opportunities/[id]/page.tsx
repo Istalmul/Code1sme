@@ -18,7 +18,7 @@ export default async function OpportunityPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { data } = await requireWorkspace();
+  const { workspace, data } = await requireWorkspace();
   const opportunity = data.opportunities.find((o) => o.id === id);
   if (!opportunity) notFound();
 
@@ -153,6 +153,27 @@ export default async function OpportunityPage({
                     </li>
                   ))}
                 </ul>
+
+                {/* Proof points are cited separately from the prospect's own
+                    signals, so it stays clear which half came from you. */}
+                {workspace.documents && workspace.documents.length > 0 ? (
+                  <p className="mt-3 border-t border-line pt-3 text-[13px] leading-relaxed text-muted">
+                    <span className="font-medium text-body">One proof point of yours: </span>
+                    {workspace.documents[0].text.split("\n")[0].slice(0, 140)}
+                  </p>
+                ) : (
+                  <p className="mt-3 border-t border-line pt-3 text-[13px] leading-relaxed text-muted">
+                    This draft says why {prospect.company} matters, but nothing about why you&apos;re
+                    worth a reply.{" "}
+                    <Link
+                      href="/settings/workspace"
+                      className="rounded font-medium text-link hover:underline"
+                    >
+                      Add a proof point
+                    </Link>{" "}
+                    and {employee.name} will work one in.
+                  </p>
+                )}
               </div>
             </section>
           )}
