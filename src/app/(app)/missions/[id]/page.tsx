@@ -19,7 +19,8 @@ export default async function MissionPage({ params }: { params: Promise<{ id: st
   const mission = data.missions.find((m) => m.id === id);
   if (!mission) notFound();
 
-  const employee = data.employees.find((e) => e.id === mission.employeeId)!;
+  const employee = data.employees.find((e) => e.id === mission.employeeId) ?? data.employees[0];
+  if (!employee) notFound();
   const found = data.opportunities
     .filter((o) => o.missionId === mission.id)
     .sort((a, b) => b.score - a.score);

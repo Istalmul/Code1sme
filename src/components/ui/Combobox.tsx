@@ -115,7 +115,7 @@ export function Combobox({
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-30 mt-1.5 max-h-64 w-full overflow-auto rounded-xl border border-line bg-surface py-1 shadow-pop"
+          className="motion-enter motion-enter-top absolute z-30 mt-1.5 max-h-64 w-full overflow-auto rounded-xl border border-line bg-surface py-1 shadow-pop"
         >
           {matches.length > 0 ? (
             matches.map((option, index) => (

@@ -118,7 +118,11 @@ export function ProfileForm({
           title="Sending accounts"
           description="Where outreach leaves from, and whether that account is warm enough to carry your volume."
         >
-          <ConnectedAccounts connections={connections} dailyCap={dailyCap} />
+          <ConnectedAccounts
+            connections={connections}
+            dailyCap={dailyCap}
+            accountEmail={email.toLowerCase()}
+          />
         </SettingsGroup>
 
         <SettingsGroup

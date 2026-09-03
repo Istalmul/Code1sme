@@ -41,12 +41,20 @@ export type User = {
 /** Where outreach would actually leave from, and whether it is safe to. */
 export type Connections = {
   email?: SenderAccount;
+  sms?: SenderAccount;
   whatsapp?: SenderAccount;
 };
+
+export type SenderChannel = keyof Connections;
 
 export type SenderAccount = {
   address: string;
   connectedAt: string;
+  /**
+   * Set once a code sent to this address or number was entered back. A number
+   * nobody proved they control is a number outreach must never leave from.
+   */
+  verifiedAt?: string;
   /**
    * Domain reputation is earned over weeks of low, steady volume. Sending at
    * full rate from a cold domain is what gets it filtered, so the warm-up day
@@ -147,8 +155,13 @@ export type ProfileDetails = {
 /** A pending 6-digit code. The code itself is never stored in the clear. */
 export type Challenge = {
   id: string;
+  /** The address a code was sent to: an email, or a phone number for SMS. */
   email: string;
-  purpose: "signup" | "password-reset";
+  purpose: "signup" | "password-reset" | "phone";
+  /** Present on phone challenges: which channel carried the code. */
+  channel?: "sms" | "whatsapp";
+  /** The account this challenge belongs to, for phone verification. */
+  userId?: string;
   codeHash: string;
   expiresAt: number;
   attempts: number;

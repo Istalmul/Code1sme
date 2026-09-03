@@ -49,6 +49,11 @@
   --radius-card: 0.75rem;
   --radius-control: 0.5rem;
 
+  /* Motion. Entrances and exits use ease-out; nothing in this app uses
+     ease-in, which starts slow at the exact moment the user is watching. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
   /* Narrower than Tailwind's smallest default, for the few places where a
      360px phone needs different treatment from a 320px one. */
   --breakpoint-xs: 22rem;
@@ -220,10 +225,14 @@
 /* Respect the user's motion preference for every transition we ship. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    /* Movement goes; fades stay, because they carry meaning. */
+    animation-name: none !important;
+    transition-property: opacity, background-color, border-color, color !important;
+    transition-duration: 140ms !important;
     scroll-behavior: auto !important;
+  }
+  .motion-enter {
+    transform: none !important;
   }
 }
 
@@ -302,16 +311,17 @@
   }
 }
 
-/* An in-app override, for people whose OS setting doesn't match what they want
-   here. The OS preference is still honoured separately, above. */
-:root[data-reduce-motion="true"],
+/* The in-app override, matching the OS behaviour above: gentler, not off. */
 :root[data-reduce-motion="true"] *,
 :root[data-reduce-motion="true"] *::before,
 :root[data-reduce-motion="true"] *::after {
-  animation-duration: 0.001ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.001ms !important;
+  animation-name: none !important;
+  transition-property: opacity, background-color, border-color, color !important;
+  transition-duration: 140ms !important;
   scroll-behavior: auto !important;
+}
+:root[data-reduce-motion="true"] .motion-enter {
+  transform: none !important;
 }
 
 /* ---------------------------------------------------------------------------
@@ -332,4 +342,72 @@
 :root[data-theme="dark"] {
   --series-1: #3987e5;
   --series-2: #d95926;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Motion primitives
+   Transform and opacity only — they skip layout and paint. Transitions rather
+   than keyframes anywhere a control can be triggered twice in a second, so the
+   motion retargets from where it is instead of restarting.
+--------------------------------------------------------------------------- */
+@layer utilities {
+  /* Press feedback. Composes with the colour transition rather than replacing
+     it — the shorthand would silently drop hover feedback. */
+  .press {
+    transition-property: transform, background-color, border-color, color;
+    transition-duration: 120ms;
+    transition-timing-function: var(--ease-out);
+  }
+  .press:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  /* Popovers scale from the control that opened them, so the connection
+     between trigger and panel is visible rather than implied. */
+  .motion-enter {
+    animation: motion-enter 170ms var(--ease-out) both;
+  }
+  .motion-enter-top {
+    transform-origin: top center;
+  }
+  .motion-enter-bottom {
+    transform-origin: bottom center;
+  }
+  .motion-enter-top-left {
+    transform-origin: top left;
+  }
+  .motion-enter-bottom-left {
+    transform-origin: bottom left;
+  }
+}
+
+@keyframes motion-enter {
+  from {
+    opacity: 0;
+    /* Never from scale(0) — nothing in the real world appears from nothing. */
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* A step in a multi-step flow arriving: a short rise, not a slide. */
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .step-enter {
+    animation: step-enter 200ms var(--ease-out) both;
+  }
 }

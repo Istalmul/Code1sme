@@ -115,7 +115,7 @@ export function WorkspaceSwitcher({
       {open && (
         <div
           role="menu"
-          className="absolute left-0 top-full z-40 mt-1.5 min-w-[240px] overflow-hidden rounded-xl border border-line bg-surface shadow-pop"
+          className="motion-enter motion-enter-top-left absolute left-0 top-full z-40 mt-1.5 min-w-[240px] overflow-hidden rounded-xl border border-line bg-surface shadow-pop"
         >
           {pending ? (
             <div className="p-3.5">

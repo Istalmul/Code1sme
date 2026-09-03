@@ -73,7 +73,7 @@ export function UserMenu({
       {open && (
         <div
           role="menu"
-          className="absolute bottom-full left-0 z-40 mb-2 min-w-[220px] overflow-hidden rounded-xl border border-line bg-surface shadow-pop"
+          className="motion-enter motion-enter-bottom-left absolute bottom-full left-0 z-40 mb-2 min-w-[220px] overflow-hidden rounded-xl border border-line bg-surface shadow-pop"
         >
           <form action="/api/auth/logout" method="post">
             <button

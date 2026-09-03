@@ -32,6 +32,10 @@ export async function POST(request: Request) {
     }
     if (challenge.resends >= MAX_RESENDS) return { kind: "exhausted" as const };
 
+    // Phone challenges resend through their own endpoint, which knows the
+    // channel; this one only handles the email flows.
+    if (challenge.purpose === "phone") return { kind: "missing" as const };
+
     const code = generateCode();
     challenge.codeHash = hashCode(code, challenge.email);
     challenge.expiresAt = Date.now() + CODE_TTL_MS;

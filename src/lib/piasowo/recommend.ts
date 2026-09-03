@@ -200,7 +200,9 @@ export const TONES = [
  * The mission Piasowo proposes first. It is a complete, runnable mission — the
  * user's job is to review it, not to assemble it.
  */
-export function suggestFirstMission(workspace: Workspace): Omit<Mission, "id" | "createdAt" | "progress"> {
+export function suggestFirstMission(
+  workspace: Workspace,
+): Omit<Mission, "id" | "createdAt" | "progress" | "employeeId"> {
   const targeting = suggestTargeting(workspace.industry);
   const markets = workspace.targetMarkets.length ? workspace.targetMarkets : targeting.industries;
   const sizes = workspace.companySizes.length ? workspace.companySizes : targeting.sizes;
@@ -209,7 +211,6 @@ export function suggestFirstMission(workspace: Workspace): Omit<Mission, "id" | 
     name: `${markets[0]} — first 50`,
     objective: `Find ${markets[0].toLowerCase()} companies showing buying signals and open a conversation about ${workspace.offering.toLowerCase()}.`,
     status: "draft",
-    employeeId: "emp-1",
     targeting: {
       industries: markets,
       sizes,

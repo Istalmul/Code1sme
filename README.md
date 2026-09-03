@@ -22,10 +22,31 @@ npm run dev
 ```
 
 `AUTH_SECRET` is the only required variable; generate one with
-`openssl rand -base64 32`. Without `RESEND_API_KEY`, verification codes are
-printed to the server log so the flow is testable locally. Without
-`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, the "Continue with Google" button
-says it isn't configured rather than failing silently.
+`openssl rand -base64 32`.
+
+**To receive verification codes by email**, set either SMTP or Resend in
+`.env.local`. SMTP works with a Gmail app password — Google Account → Security
+→ 2-Step Verification → App passwords; an ordinary account password will not
+work:
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=you@gmail.com
+SMTP_PASSWORD=the-16-character-app-password
+```
+
+With no transport configured, codes go to the server log instead — they are
+never shown in the browser, since that would defeat the point of proving the
+address is reachable. Restart the server after changing any variable.
+
+**To verify phone numbers by SMS or WhatsApp**, set `TWILIO_ACCOUNT_SID`,
+`TWILIO_AUTH_TOKEN` and a sender (`TWILIO_SMS_FROM` or
+`TWILIO_WHATSAPP_FROM`). Same fallback: without them the code goes to the log,
+and the screen says so rather than leaving you waiting for a text.
+
+Without `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, the "Continue with Google"
+button says it isn't configured rather than failing silently.
 
 ```bash
 npm run typecheck
@@ -130,8 +151,14 @@ tiles carry their own denominator, so a percentage is never floating free.
 
 ### Sending accounts and contact verification
 
-Connecting an email or WhatsApp account records where outreach would leave from
-and starts a warm-up clock. Domain reputation is earned, so the warm-up stage
+Email, SMS and WhatsApp can each be connected as a sender. **A phone number has
+to be proved before it can send anything**: a 6-digit code goes out over SMS or
+WhatsApp and has to come back, using the same mechanics as email verification —
+hashed at rest, constant-time compared, ten-minute expiry, capped attempts and
+resends. A number nobody proved they control is a number outreach must never
+leave from, and the screen says plainly when a connected account is unverified.
+
+Connecting an account also starts a warm-up clock. Domain reputation is earned, so the warm-up stage
 caps what can actually go out — and when the configured daily cap is higher
 than the account can safely carry, the screen says so rather than silently
 ignoring the setting.
@@ -184,6 +211,25 @@ which is how the request shapes are tested without a live key.
 | Reporting | Flat counts | A trend chart, a table view and a CSV export reading the same rows |
 | Deliverability | Nothing said about it | Warm-up state caps real volume; contacts verified before a draft is approved |
 | AI output | Templates only | Real model calls, with templates labelled as templates when no key is set |
+
+### Motion
+
+Built to Emil Kowalski's animation rules, applied where motion has a named
+purpose and left out where it doesn't:
+
+- Press feedback on every button that commits an action — `transform`, 120ms,
+  `cubic-bezier(0.23, 1, 0.32, 1)`. It composes with the colour transition
+  rather than replacing it.
+- Popovers scale in from the control that opened them (`transform-origin` at
+  the trigger, 170ms), so the connection is visible rather than implied. They
+  start at `scale(0.96)`, never `scale(0)`.
+- `transform` and `opacity` only. The toggle knob moves on `transform` rather
+  than `left`; the sidebar collapse is instant, because transitioning its width
+  would reflow the page on every frame for a control used deliberately and
+  rarely.
+- No `ease-in` anywhere, and no `transition: all`.
+- Reduced motion — OS preference or the in-app override — is **gentler, not
+  off**: movement goes, the fades that explain a state change stay.
 
 ### Accessibility and responsive behaviour
 

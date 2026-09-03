@@ -58,7 +58,7 @@ export function AppShell({
   return (
     <div className="min-h-dvh bg-sunken">
       <aside
-        className={`fixed inset-y-0 left-0 z-20 hidden flex-col border-r border-line bg-surface py-4 transition-[width] lg:flex ${
+        className={`fixed inset-y-0 left-0 z-20 hidden flex-col border-r border-line bg-surface py-4 lg:flex ${
           collapsed ? "w-[68px] px-2" : "w-60 px-3"
         }`}
       >

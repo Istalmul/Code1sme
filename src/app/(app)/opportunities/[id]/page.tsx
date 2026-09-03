@@ -23,8 +23,9 @@ export default async function OpportunityPage({
   const opportunity = data.opportunities.find((o) => o.id === id);
   if (!opportunity) notFound();
 
-  const employee = data.employees.find((e) => e.id === opportunity.employeeId)!;
-  const mission = data.missions.find((m) => m.id === opportunity.missionId)!;
+  const employee = data.employees.find((e) => e.id === opportunity.employeeId) ?? data.employees[0];
+  if (!employee) notFound();
+  const mission = data.missions.find((m) => m.id === opportunity.missionId) ?? data.missions[0];
   const { prospect, signal } = opportunity;
 
   return (

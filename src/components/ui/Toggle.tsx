@@ -42,9 +42,9 @@ export function Toggle({
       >
         <span
           aria-hidden="true"
-          className={`absolute top-0.5 size-5 rounded-full bg-white shadow-card transition-[left] ${
-            checked ? "left-[1.125rem]" : "left-0.5"
-          }`}
+          style={{ transform: `translateX(${checked ? "1rem" : "0"})` }}
+          className="absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow-card
+            transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
         />
       </button>
     </div>

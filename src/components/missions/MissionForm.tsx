@@ -48,7 +48,7 @@ export function MissionForm({
   defaults,
   employeeName,
 }: {
-  defaults: Omit<Mission, "id" | "createdAt" | "progress">;
+  defaults: Omit<Mission, "id" | "createdAt" | "progress" | "employeeId">;
   employeeName: string;
 }) {
   const router = useRouter();

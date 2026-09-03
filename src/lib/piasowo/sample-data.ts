@@ -169,6 +169,7 @@ export function buildWorkspace(workspace: Workspace) {
     {
       ...suggested,
       id: id("m-1"),
+      employeeId: id("emp-1"),
       status: "running",
       createdAt: hoursAgo(72),
       progress: { researched: 412, qualified: 87, opportunities: 12, contacted: 31, replies: 6 },
