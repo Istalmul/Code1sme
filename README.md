@@ -53,6 +53,25 @@ npm run typecheck
 npm run build
 ```
 
+### If `npm run dev` exits immediately on Windows
+
+Next 16 uses Turbopack by default, which needs a native SWC binary. On some
+Windows machines that binary fails to load — the terminal says
+`@next/swc-win32-x64-msvc ... is not a valid Win32 application` followed by
+`Turbopack is not supported on this platform` — and the server exits, so
+`localhost:3000` refuses the connection.
+
+Use the webpack bundler instead:
+
+```bash
+npm run dev:webpack
+```
+
+That is the only change needed; the app is identical either way. To try fixing
+Turbopack itself, delete `node_modules` and `package-lock.json` and run
+`npm install` again — the message usually means a corrupted or
+wrong-architecture download.
+
 `next-env.d.ts` is committed in the form `next build` writes. Running
 `next dev` rewrites its two imports to point at `.next/dev/types/` instead;
 that local change is expected and can be discarded.
