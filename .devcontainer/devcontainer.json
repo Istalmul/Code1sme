@@ -1,0 +1,23 @@
+{
+  "name": "Piasowo",
+  // Node 22 satisfies Next's >=20.9 requirement without any local install.
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+
+  // Dependencies are installed once while the Codespace builds, so the first
+  // thing to type in the terminal is `npm run dev`.
+  "postCreateCommand": "npm install",
+
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Piasowo",
+      "onAutoForward": "openBrowser"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": ["bradlc.vscode-tailwindcss", "dbaeumer.vscode-eslint"]
+    }
+  }
+}
