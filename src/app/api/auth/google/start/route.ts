@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   }
 
   const pkce = createPkce();
-  const response = NextResponse.redirect(authorizationUrl(pkce));
+  const response = NextResponse.redirect(authorizationUrl(pkce, request));
 
   // State, nonce and verifier travel in short-lived httpOnly cookies rather
   // than session storage, so the callback can validate them server-side.

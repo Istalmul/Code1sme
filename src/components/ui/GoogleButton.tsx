@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 function GoogleMark() {
@@ -24,11 +25,19 @@ export function GoogleButton({ configured, label }: { configured: boolean; label
   const [busy, setBusy] = useState(false);
 
   if (!configured) {
+    // A dead button is worse than an honest one, and worse still without a way
+    // to fix it — so this points at the exact steps.
     return (
       <div className="rounded-lg border border-dashed border-line-strong px-4 py-3 text-center">
         <p className="text-[13px] text-muted">
-          Google sign-in isn&apos;t configured on this deployment.
+          Google sign-in isn&apos;t set up on this deployment yet.
         </p>
+        <Link
+          href="/setup/google"
+          className="mt-1 inline-block rounded text-[13px] font-medium text-link hover:underline"
+        >
+          Enable it — takes about five minutes
+        </Link>
       </div>
     );
   }

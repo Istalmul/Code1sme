@@ -14,11 +14,26 @@ import { post } from "@/lib/api";
 import { emailField } from "@/lib/auth/schema";
 
 /** Google redirects back with a reason rather than a silent failure. */
-const OAUTH_MESSAGES: Record<string, string> = {
-  "google-unconfigured": "Google sign-in isn't configured on this deployment yet.",
-  "google-cancelled": "Google sign-in was cancelled. You can try again or use your password.",
-  "google-failed": "We couldn't complete Google sign-in. Please try again.",
-  "google-unverified": "That Google account's email isn't verified, so we can't use it to sign in.",
+const OAUTH_MESSAGES: Record<string, { text: string; setupLink?: boolean }> = {
+  "google-unconfigured": {
+    text: "Google sign-in isn't set up on this deployment yet.",
+    setupLink: true,
+  },
+  "google-cancelled": {
+    text: "Google sign-in was cancelled. You can try again, or use your email and password.",
+  },
+  "google-failed": {
+    text: "We couldn't complete Google sign-in. Please try again.",
+  },
+  // By far the most common setup mistake, and unfixable by retrying — so it
+  // gets its own message and a link to the exact value to register.
+  "google-redirect": {
+    text: "Google rejected the address Piasowo sent it back to. The redirect URI registered in Google Cloud has to match this deployment exactly.",
+    setupLink: true,
+  },
+  "google-unverified": {
+    text: "That Google account's email isn't verified, so it can't be used to sign in.",
+  },
 };
 
 type Errors = Partial<Record<"email" | "password" | "form", string>>;
@@ -95,7 +110,18 @@ export function LoginForm({
 
       {banner && (
         <div className="mt-6">
-          <Alert tone="error">{banner}</Alert>
+          <Alert tone="error">
+            {banner.text}
+            {banner.setupLink && (
+              <>
+                {" "}
+                <Link href="/setup/google" className="rounded font-medium underline">
+                  How to fix it
+                </Link>
+                .
+              </>
+            )}
+          </Alert>
         </div>
       )}
 

@@ -39,10 +39,14 @@ export async function GET(request: Request) {
 
   let profile;
   try {
-    profile = await exchangeCode(code, jar.g_verifier, jar.g_nonce);
+    profile = await exchangeCode(code, jar.g_verifier, jar.g_nonce, request);
   } catch (cause) {
     console.error("[piasowo] google callback failed", cause);
-    return backToLogin(request, "google-failed");
+    // Retrying will never fix a mismatched redirect URI, so it is named
+    // separately rather than folded into a generic failure.
+    const mismatch =
+      cause instanceof Error && /redirect_uri_mismatch|invalid_grant/i.test(cause.message);
+    return backToLogin(request, mismatch ? "google-redirect" : "google-failed");
   }
 
   if (!profile.emailVerified) return backToLogin(request, "google-unverified");

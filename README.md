@@ -45,8 +45,17 @@ address is reachable. Restart the server after changing any variable.
 `TWILIO_WHATSAPP_FROM`). Same fallback: without them the code goes to the log,
 and the screen says so rather than leaving you waiting for a text.
 
-Without `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, the "Continue with Google"
-button says it isn't configured rather than failing silently.
+**To enable Google sign-in**, run the app and open
+[`/setup/google`](http://localhost:3000/setup/google). That page shows the two
+values Google needs — the authorised origin and the redirect URI — derived from
+the address you are reading it on, so they are correct whether you are on
+localhost, in a Codespace or behind a tunnel. Google matches the redirect URI
+character for character, and mis-registering it is the single most common
+reason this fails; the page gives you the exact string to copy.
+
+Without the credentials the Google button is switched off and links to that
+page, rather than failing when tapped. Everything in Piasowo works without
+Google — email sign-up is the full experience.
 
 ```bash
 npm run typecheck
