@@ -1,11 +1,19 @@
 {
   "name": "Piasowo",
-  // Node 22 satisfies Next's >=20.9 requirement without any local install.
+  // Node 22 satisfies Next's >=20.9 requirement without any local install, and
+  // sidesteps the Windows-only native binary problem entirely.
   "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
 
-  // Dependencies are installed once while the Codespace builds, so the first
-  // thing to type in the terminal is `npm run dev`.
-  "postCreateCommand": "npm install",
+  // Installs dependencies and generates the one required secret, so the
+  // Codespace is runnable the moment it finishes building.
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+
+  // Starts the app automatically. It runs in the foreground on purpose: email
+  // verification codes are printed to this terminal when no mail provider is
+  // configured, so it needs to stay visible.
+  "postAttachCommand": {
+    "app": "npm run dev"
+  },
 
   "forwardPorts": [3000],
   "portsAttributes": {
@@ -17,7 +25,10 @@
 
   "customizations": {
     "vscode": {
-      "extensions": ["bradlc.vscode-tailwindcss", "dbaeumer.vscode-eslint"]
+      "extensions": ["bradlc.vscode-tailwindcss", "dbaeumer.vscode-eslint"],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
     }
   }
 }

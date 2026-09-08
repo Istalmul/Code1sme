@@ -7,9 +7,25 @@ opportunity signals, conduct AI-powered research, and execute growth missions.
 
 ### In the browser, with no local setup
 
-On GitHub: **Code → Codespaces → Create codespace on this branch**. Dependencies
-install automatically; then run `npm run dev` in the terminal and the app opens
-on port 3000.
+On GitHub: **Code → Codespaces → Create codespace on this branch**.
+
+Nothing else is needed. The devcontainer installs dependencies, generates the
+`AUTH_SECRET` the app requires into a gitignored `.env.local`, starts the dev
+server, and opens port 3000 — so the app is running by the time the window
+finishes loading.
+
+Two things follow from running there rather than locally:
+
+- **Verification codes appear in the terminal** the server is running in, until
+  you configure a mail provider. They are never shown in the browser.
+- **Google sign-in works without extra configuration.** The redirect URI is
+  derived from the Codespace's own address; open `/setup/google` in the running
+  app for the exact value to register.
+
+It also sidesteps a Windows-only failure: Next 16 defaults to Turbopack, which
+needs a native SWC binary that fails to load on some Windows machines
+(`not a valid Win32 application`), taking the dev server down with it. Locally
+`npm run dev:webpack` avoids that; a Codespace never hits it.
 
 ### Locally
 
