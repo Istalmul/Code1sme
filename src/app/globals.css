@@ -1,0 +1,413 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Piasowo design tokens
+   Flat surfaces, real borders, one accent. No gradients, glows or glass.
+   Every token exists because a component needs it.
+--------------------------------------------------------------------------- */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Neutrals — very slightly cool so the accent sits naturally on them */
+  --color-ink-950: #0b0f16;
+  --color-ink-900: #11161f;
+  --color-ink-800: #1a212c;
+  --color-ink-700: #2b3441;
+  --color-ink-600: #4a5566;
+  --color-ink-500: #6b7686;
+  --color-ink-400: #8f98a6;
+  --color-ink-300: #c3c9d2;
+  --color-ink-200: #dfe3e9;
+  --color-ink-100: #eef0f4;
+  --color-ink-50: #f7f8fa;
+
+  /* Brand accent — used for the single primary action on a screen */
+  --color-brand-700: #1c3fb0;
+  --color-brand-600: #2450d6;
+  --color-brand-500: #3563e9;
+  --color-brand-100: #e3eafd;
+  --color-brand-50: #f2f5fe;
+
+  /* Status */
+  --color-good-700: #0f6b45;
+  --color-good-600: #128052;
+  --color-good-100: #d8f0e4;
+  --color-warn-700: #8a5300;
+  --color-warn-600: #a76500;
+  --color-warn-100: #fbeecd;
+  --color-bad-700: #a3251f;
+  --color-bad-600: #c02b24;
+  --color-bad-100: #fbe0de;
+
+  /* Activity — reserved for "the AI is working" affordances only */
+  --color-live-700: #5b3aa8;
+  --color-live-600: #6d47c9;
+  --color-live-100: #ebe4fa;
+
+  --radius-card: 0.75rem;
+  --radius-control: 0.5rem;
+
+  /* Motion. Entrances and exits use ease-out; nothing in this app uses
+     ease-in, which starts slow at the exact moment the user is watching. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* Narrower than Tailwind's smallest default, for the few places where a
+     360px phone needs different treatment from a 320px one. */
+  --breakpoint-xs: 22rem;
+
+  /* Semantic aliases so components write `bg-surface` / `text-muted` instead
+     of arbitrary-value escapes. These resolve to the themed variables below,
+     which is why they stay correct in light and dark. */
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-raised: var(--surface-raised);
+  --color-hover: var(--surface-hover);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-body: var(--text);
+  --color-muted: var(--text-muted);
+  --color-subtle: var(--text-subtle);
+  --color-link: var(--link);
+
+  /* Status tints and their foreground, as a pair. A component uses
+     `bg-tint-warn text-on-warn` and stays legible in either theme. */
+  --color-tint-good: var(--tint-good);
+  --color-on-good: var(--on-good);
+  --color-tint-warn: var(--tint-warn);
+  --color-on-warn: var(--on-warn);
+  --color-tint-bad: var(--tint-bad);
+  --color-on-bad: var(--on-bad);
+  --color-tint-brand: var(--tint-brand);
+  --color-on-brand: var(--on-brand);
+  --color-tint-live: var(--tint-live);
+  --color-on-live: var(--on-live);
+}
+
+/* Semantic surface variables, themed. Components reference only these. */
+:root {
+  --surface: #ffffff;
+  --surface-sunken: var(--color-ink-50);
+  --surface-raised: #ffffff;
+  --surface-hover: var(--color-ink-50);
+  --border: var(--color-ink-200);
+  --border-strong: var(--color-ink-300);
+  --text: var(--color-ink-900);
+  --text-muted: var(--color-ink-600);
+  --text-subtle: #636c7b;
+  --focus: var(--color-brand-500);
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.05);
+  --shadow-pop: 0 8px 24px -8px rgb(16 24 40 / 0.16), 0 2px 6px rgb(16 24 40 / 0.06);
+  --link: #2450d6;
+  --tint-good: #d8f0e4;
+  --on-good: #0f6b45;
+  --tint-warn: #fbeecd;
+  --on-warn: #7a4900;
+  --tint-bad: #fbe0de;
+  --on-bad: #a3251f;
+  --tint-brand: #e3eafd;
+  --on-brand: #1c3fb0;
+  --tint-live: #ebe4fa;
+  --on-live: #5b3aa8;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: var(--color-ink-900);
+    --surface-sunken: var(--color-ink-950);
+    --surface-raised: var(--color-ink-800);
+    --surface-hover: var(--color-ink-800);
+    --border: #263041;
+    --border-strong: #354154;
+    --text: #eef1f6;
+    --text-muted: #a3adbd;
+    --text-subtle: #8f99a8;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-pop: 0 8px 24px -8px rgb(0 0 0 / 0.6), 0 2px 6px rgb(0 0 0 / 0.3);
+    --link: #9db8ff;
+    --tint-good: #0e2a20;
+    --on-good: #6fdcac;
+    --tint-warn: #322309;
+    --on-warn: #f0c04d;
+    --tint-bad: #3a1512;
+    --on-bad: #f4a3a0;
+    --tint-brand: #16234a;
+    --on-brand: #9db8ff;
+    --tint-live: #241c3e;
+    --on-live: #c0adfa;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --surface: var(--color-ink-900);
+  --surface-sunken: var(--color-ink-950);
+  --surface-raised: var(--color-ink-800);
+  --surface-hover: var(--color-ink-800);
+  --border: #263041;
+  --border-strong: #354154;
+  --text: #eef1f6;
+  --text-muted: #a3adbd;
+  --text-subtle: #8f99a8;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-pop: 0 8px 24px -8px rgb(0 0 0 / 0.6), 0 2px 6px rgb(0 0 0 / 0.3);
+  --link: #9db8ff;
+  --tint-good: #0e2a20;
+  --on-good: #6fdcac;
+  --tint-warn: #322309;
+  --on-warn: #f0c04d;
+  --tint-bad: #3a1512;
+  --on-bad: #f4a3a0;
+  --tint-brand: #16234a;
+  --on-brand: #9db8ff;
+  --tint-live: #241c3e;
+  --on-live: #c0adfa;
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--surface-sunken);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* One focus treatment everywhere, visible on every surface. */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.014em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::placeholder {
+    color: var(--text-subtle);
+  }
+}
+
+@layer utilities {
+  /* Screen-reader-only until focused — used by the skip link. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-pop {
+    box-shadow: var(--shadow-pop);
+  }
+}
+
+/* Respect the user's motion preference for every transition we ship. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    /* Movement goes; fades stay, because they carry meaning. */
+    animation-name: none !important;
+    transition-property: opacity, background-color, border-color, color !important;
+    transition-duration: 140ms !important;
+    scroll-behavior: auto !important;
+  }
+  .motion-enter {
+    transform: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Accent colour
+   The accent is the only hue in the product, so switching it means rebinding
+   the brand ramp rather than restyling components. Each accent ships a light
+   and a dark tint pair so contrast holds in both themes.
+--------------------------------------------------------------------------- */
+:root[data-accent="teal"] {
+  --color-brand-500: #109384;
+  --color-brand-600: #0d7d72;
+  --color-brand-700: #0a635c;
+  --tint-brand: #d6f0ec;
+  --on-brand: #0a635c;
+  --link: #0a635c;
+}
+:root[data-accent="violet"] {
+  --color-brand-500: #7c5ae0;
+  --color-brand-600: #6d47c9;
+  --color-brand-700: #5836a6;
+  --tint-brand: #ebe4fa;
+  --on-brand: #5836a6;
+  --link: #5836a6;
+}
+:root[data-accent="amber"] {
+  --color-brand-500: #c17a00;
+  --color-brand-600: #a76500;
+  --color-brand-700: #855100;
+  --tint-brand: #fbeecd;
+  --on-brand: #7a4900;
+  --link: #7a4900;
+}
+:root[data-accent="rose"] {
+  --color-brand-500: #d63a63;
+  --color-brand-600: #c0264f;
+  --color-brand-700: #9d1c40;
+  --tint-brand: #fbdfe6;
+  --on-brand: #9d1c40;
+  --link: #9d1c40;
+}
+
+/* Dark-theme tints for each accent, applied for both the explicit dark choice
+   and the system-dark default. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-accent="teal"] { --tint-brand: #0c2b29; --on-brand: #5fd6c5; --link: #5fd6c5; }
+  :root:not([data-theme="light"])[data-accent="violet"] { --tint-brand: #241c3e; --on-brand: #c0adfa; --link: #c0adfa; }
+  :root:not([data-theme="light"])[data-accent="amber"] { --tint-brand: #322309; --on-brand: #f0c04d; --link: #f0c04d; }
+  :root:not([data-theme="light"])[data-accent="rose"] { --tint-brand: #3a1220; --on-brand: #f5a0b8; --link: #f5a0b8; }
+}
+:root[data-theme="dark"][data-accent="teal"] { --tint-brand: #0c2b29; --on-brand: #5fd6c5; --link: #5fd6c5; }
+:root[data-theme="dark"][data-accent="violet"] { --tint-brand: #241c3e; --on-brand: #c0adfa; --link: #c0adfa; }
+:root[data-theme="dark"][data-accent="amber"] { --tint-brand: #322309; --on-brand: #f0c04d; --link: #f0c04d; }
+:root[data-theme="dark"][data-accent="rose"] { --tint-brand: #3a1220; --on-brand: #f5a0b8; --link: #f5a0b8; }
+
+/* ---------------------------------------------------------------------------
+   Density
+   Compact trades breathing room for rows on screen. It changes padding only —
+   never type size — so nothing becomes harder to read.
+--------------------------------------------------------------------------- */
+:root {
+  --pad-card: 1.25rem;
+  --gap-list: 0.75rem;
+}
+:root[data-density="compact"] {
+  --pad-card: 0.875rem;
+  --gap-list: 0.5rem;
+}
+
+@layer utilities {
+  .p-card {
+    padding: var(--pad-card);
+  }
+  .gap-list {
+    gap: var(--gap-list);
+  }
+}
+
+/* The in-app override, matching the OS behaviour above: gentler, not off. */
+:root[data-reduce-motion="true"] *,
+:root[data-reduce-motion="true"] *::before,
+:root[data-reduce-motion="true"] *::after {
+  animation-name: none !important;
+  transition-property: opacity, background-color, border-color, color !important;
+  transition-duration: 140ms !important;
+  scroll-behavior: auto !important;
+}
+:root[data-reduce-motion="true"] .motion-enter {
+  transform: none !important;
+}
+
+/* ---------------------------------------------------------------------------
+   Chart series
+   Fixed categorical slots, validated for colour-vision separation against both
+   surfaces. Deliberately independent of the user's accent, which can change.
+--------------------------------------------------------------------------- */
+:root {
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --series-1: #3987e5;
+    --series-2: #d95926;
+  }
+}
+:root[data-theme="dark"] {
+  --series-1: #3987e5;
+  --series-2: #d95926;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Motion primitives
+   Transform and opacity only — they skip layout and paint. Transitions rather
+   than keyframes anywhere a control can be triggered twice in a second, so the
+   motion retargets from where it is instead of restarting.
+--------------------------------------------------------------------------- */
+@layer utilities {
+  /* Press feedback. Composes with the colour transition rather than replacing
+     it — the shorthand would silently drop hover feedback. */
+  .press {
+    transition-property: transform, background-color, border-color, color;
+    transition-duration: 120ms;
+    transition-timing-function: var(--ease-out);
+  }
+  .press:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  /* Popovers scale from the control that opened them, so the connection
+     between trigger and panel is visible rather than implied. */
+  .motion-enter {
+    animation: motion-enter 170ms var(--ease-out) both;
+  }
+  .motion-enter-top {
+    transform-origin: top center;
+  }
+  .motion-enter-bottom {
+    transform-origin: bottom center;
+  }
+  .motion-enter-top-left {
+    transform-origin: top left;
+  }
+  .motion-enter-bottom-left {
+    transform-origin: bottom left;
+  }
+}
+
+@keyframes motion-enter {
+  from {
+    opacity: 0;
+    /* Never from scale(0) — nothing in the real world appears from nothing. */
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* A step in a multi-step flow arriving: a short rise, not a slide. */
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .step-enter {
+    animation: step-enter 200ms var(--ease-out) both;
+  }
+}
